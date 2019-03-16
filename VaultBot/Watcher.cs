@@ -11,12 +11,22 @@ namespace VaultBot
 	class Watcher
 	{
 		private DiscordChannel _channel;
-		private String _path;
-		private FileSystemWatcher _watcher = new FileSystemWatcher();
-		public Watcher(String path, DiscordChannel channel)
+        public DiscordChannel Channel { get => _channel; set => _channel = value; }
+
+        private String _path;
+        public readonly String AnimeName;
+
+        private FileSystemWatcher _watcher = new FileSystemWatcher();
+
+       
+        public Watcher(String path, DiscordChannel channel)
 		{
 			this._channel = channel;
-			this._path = path;
+            this._path = path;
+
+            String[] temp = path.Split('\\');
+
+            this.AnimeName = temp.Last();
 
 			_watcher.Path = _path;
 
@@ -29,17 +39,16 @@ namespace VaultBot
 			_watcher.EnableRaisingEvents = true;
 			
 		}
-	
-		
 
+       
 
-		public async Task SendMessage(String s)
+        public async Task SendMessage(String s)
 		{
 			await _channel.SendMessageAsync(s);
 		}
 		private void OnCreate(object source, FileSystemEventArgs e)
 		{
-			SendMessage($"Nuevo EP: {e.Name}");
+			SendMessage($"Nuevo EP: {AnimeName}");
 		}
 	}
 }

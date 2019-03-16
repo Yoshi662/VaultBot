@@ -10,65 +10,79 @@ using System.Collections.ObjectModel;
 
 namespace VaultBot
 {
-	public class AnimeUpdater
-	{
-		private DiscordChannel _Channel;
-		public DiscordChannel Channel { get => _Channel; set => _Channel = value; }
+    public class AnimeUpdater
+    {
+        private DiscordChannel _Channel;
+        public DiscordChannel Channel { get => _Channel; set => _Channel = value; }
 
-		private String _Path = @"F:\FTP\Multimedia\Anime";
-		//private String _Path = @"D:\AAA";
+        private String _Path = @"F:\FTP\Multimedia\Anime";
+        //private String _Path = @"D:\AAA";
 
-		private List<Watcher> _Watchers = new List<Watcher>();
-
-
-
-
-		//TODO leer la carpeta entera, 
-		//seleccionar las carpetas cuya fecha de modificacion sea menor a dos semanas y añadirles Watchers
-		//Crear Watchers
-		//Crear una forma amigable de mostrar los animes actualizados
+        private List<Watcher> _Watchers = new List<Watcher>();
 
 
 
-		public async Task ScanAsync()
-		{
-			String salida = "Se han añadido los siguientes animes\n";
-			String[] listaAnimes = Directory.GetDirectories(_Path);
-			await _Channel.SendMessageAsync("Buscando animes");
 
-			DateTime minus2weeks = DateTime.Now.Subtract(new TimeSpan(14/*CATORCE*/, 0, 0, 0));
-			foreach (String str in listaAnimes)
-			{
-				DateTime dt = Directory.GetLastAccessTime(str);
-				if (dt.CompareTo(minus2weeks) >= 0)
-				{
-					//es mas reciente de dos semanas
-					AddWatcherASync(new Watcher(str, _Channel));
-					salida += "Añadido: " + str.Substring(24) + "\n";
-				}
-			}
-			await _Channel.SendMessageAsync(salida);
-		}
+        //TODO leer la carpeta entera, 
+        //seleccionar las carpetas cuya fecha de modificacion sea menor a dos semanas y añadirles Watchers
+        //Crear Watchers
+        //Crear una forma amigable de mostrar los animes actualizados
+
+        public async Task SelectChannel(DiscordChannel channel)
+        {
+            this._Channel = channel;
+            foreach (Watcher watcher in _Watchers)
+            {
+                watcher.Channel = channel;
+            }
+        }
+
+        public async Task ScanAsync()
+        {
+            String salida = "Se han añadido los siguientes animes\n";
+            String[] listaAnimes = Directory.GetDirectories(_Path);
+            await _Channel.SendMessageAsync("Buscando animes");
+            DateTime minus2weeks = DateTime.Now.Subtract(new TimeSpan(14/*CATORCE*/, 0, 0, 0));
+
+            //Si ya hay Watchers en el array los borra
+            if (_Watchers.Count > 0)
+            {
+                _Watchers.RemoveRange(0, _Watchers.Count);
+            }
+
+            foreach (String str in listaAnimes)
+            {
+                DateTime dt = Directory.GetLastAccessTime(str);
+                if (dt.CompareTo(minus2weeks) >= 0)
+                {
+                    Watcher w = new Watcher(str, _Channel);
+                    //es mas reciente de dos semanas
+                    AddWatcherASync(w);
+                    salida += $"Añadido: {w.AnimeName}\n";
+                }
+            }
+            await _Channel.SendMessageAsync(salida);
+        }
 
 
-		private async Task AddWatcherASync(Watcher w)
-		{
-			_Watchers.Add(w);
-		}
+        private async Task AddWatcherASync(Watcher w)
+        {
+            _Watchers.Add(w);
+        }
 
-		public void SetPath(String s)
-		{
-			_Path = s;
-			ScanAsync();
-		}
+        public void SetPath(String s)
+        {
+            _Path = s;
+            ScanAsync();
+        }
 
-		public async Task SendMessage(String s)
-		{
-			await _Channel.SendMessageAsync(s);
-		}
-		private void OnCreate(object source, FileSystemEventArgs e)
-		{
-			SendMessage($"Nuevo EP: {e.Name}");
-		}
-	}
+        public async Task SendMessage(String s)
+        {
+            await _Channel.SendMessageAsync(s);
+        }
+        private void OnCreate(object source, FileSystemEventArgs e)
+        {
+            SendMessage($"Nuevo EP: {e.Name}");
+        }
+    }
 }

@@ -36,7 +36,7 @@ namespace VaultBot
 		{
 			if (ctx.User.Id == 66139444276625408)
 			{
-				AnimeUpdater.Channel = ctx.Channel;
+                await AnimeUpdater.SelectChannel(ctx.Channel);
 				await AnimeUpdater.SendMessage("Canal Seleccionado");
 			}
 			else
