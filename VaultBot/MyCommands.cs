@@ -18,15 +18,8 @@ namespace VaultBot
         [Command("Ping")]
         public async Task Pinger(CommandContext ctx)
         {
-
-            // let's trigger a typing indicator to let
-            // users know we're working
             await ctx.TriggerTypingAsync();
-
-            // let's make the message a bit more colourful
             var emoji = DiscordEmoji.FromName(ctx.Client, ":ping_pong:");
-
-            // respond with ping
             await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
 
         }
@@ -49,7 +42,6 @@ namespace VaultBot
             else
             {
                 await ctx.RespondAsync("Solo el creador del bot tiene acceso a este comando");
-
             }
         }   
 
@@ -58,11 +50,11 @@ namespace VaultBot
         public async Task Help(CommandContext ctx)
         {
             String salida = 
-                "Comandos publicos\n" +
-                "-Help: Muestra este mensaje)\n" +
+                "Comandos publicos:\n" +
+                "    `-Help` - Muestra este mensaje\n" +
                 "Comandos privados\n" +
-                "-SelectChannel: Selecciona el canal por el cual se van a enviar las notificaciones";
-             await AnimeUpdater.SendMessage(salida);
+                "    `-SelectChannel` - Selecciona el canal por el cual se van a enviar las notificaciones";
+             await ctx.RespondAsync(salida);
             
         }
     }
