@@ -12,7 +12,7 @@ namespace VaultBot
 {
     public class MyCommands
     {
-        public AnimeUpdater AnimeUpdater { get; set; } = new AnimeUpdater();
+        public AnimeHandler AnimeUpdater { get; set; } = new AnimeHandler();
 
 
         [Command("Ping")]
@@ -51,72 +51,19 @@ namespace VaultBot
                 await ctx.RespondAsync("Solo el creador del bot tiene acceso a este comando");
 
             }
-        }
+        }   
 
-
-        [Command("Load")]
-        public async Task Load(CommandContext ctx)
-        {
-            if (ctx.User.Id == 66139444276625408)
-            {
-                AnimeUpdater.Load();
-            }
-            else
-            {
-                await ctx.RespondAsync("Solo el creador del bot tiene acceso a este comando");
-            }
-        }
-
-
-        [Command("List")]
-        public async Task List(CommandContext ctx)
-        {
-                     AnimeUpdater.ListAsync(ctx.Channel, ctx.Member, ctx.User);
-        }
-
-
-        [Command("Init")]
-        public async Task Init(CommandContext ctx)
-        {
-            if (ctx.User.Id == 66139444276625408)
-            {
-                AnimeUpdater.Channel = ctx.Channel;
-                AnimeUpdater.ScanAsync();
-                AnimeUpdater.Load();
-                AnimeUpdater.ListAsync(ctx.Channel, ctx.Member, ctx.User);
-                await AnimeUpdater.SendMessage("Se ha inicializado el bot en este canal");
-            }
-            else
-            {
-                await ctx.RespondAsync("Solo el creador del bot tiene acceso a este comando");
-            }
-        }
-
-        //TODO command Scan 
 
         [Command("Help")]
         public async Task Help(CommandContext ctx)
         {
             String salida = 
-                "Comandos publicos:\n" +
-                "-Help\n-Ping\n" +
-                "Comandos privados:" +
-                "-Init\n-Scan\n-SelectChannel\n";
+                "Comandos publicos\n" +
+                "-Help: Muestra este mensaje)\n" +
+                "Comandos privados\n" +
+                "-SelectChannel: Selecciona el canal por el cual se van a enviar las notificaciones";
              await AnimeUpdater.SendMessage(salida);
             
-        }
-
-        [Command("Scan")]
-        public async Task Scan(CommandContext ctx)
-        {
-            if (ctx.User.Id == 66139444276625408)
-            {
-                await AnimeUpdater.ScanAsync();
-            }
-            else
-            {
-                await ctx.RespondAsync("Solo el creador del bot tiene acceso a este comando");
-            }
         }
     }
 
