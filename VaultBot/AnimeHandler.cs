@@ -18,8 +18,6 @@ namespace VaultBot
         private FileSystemWatcher MasterWatcher = new FileSystemWatcher();
 
         private String _AnimePath = @"F:\FTP\Multimedia\Anime";
-        //private String _AnimePath = @"D:\AAA";
-
         public AnimeHandler()
         {
             this.MasterWatcher.Path = _AnimePath;
@@ -41,7 +39,7 @@ namespace VaultBot
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
             FileAttributes attributes = File.GetAttributes(e.FullPath);
-            String Nombre = e.Name.Replace("\\", " - ");
+            String Nombre = e.Name.Split('\\').Last();
             if (attributes.HasFlag(FileAttributes.Directory))
                 SendMessage($"Nuevo Anime: {Nombre}");
             else
