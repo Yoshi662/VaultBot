@@ -14,6 +14,7 @@ namespace VaultBot
 {
 	public class Program
 	{
+		public AnimeHandler AnimeUpdater { get; set; } = new AnimeHandler();
 		public DiscordClient Client { get; set; }
 		public static CommandsNextModule Commands { get; set; }
 
@@ -61,6 +62,8 @@ namespace VaultBot
 			Commands.RegisterCommands<MyCommands>();
 
 			await this.Client.ConnectAsync();
+
+			AnimeUpdater.Channel = await Client.GetChannelAsync(555836205095452684);
 
 			await Task.Delay(-1);
 		}

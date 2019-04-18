@@ -12,7 +12,7 @@ namespace VaultBot
 {
     public class MyCommands
     {
-        public AnimeHandler AnimeUpdater { get; set; } = new AnimeHandler();
+        
 
 
         [Command("Ping")]
@@ -23,28 +23,6 @@ namespace VaultBot
             await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
 
         }
-
-        [Command("SelectChannel")]
-        public async Task SetChannel(CommandContext ctx)
-        {
-            if (ctx.User.Id == 66139444276625408)
-            {
-                if (!ctx.Channel.IsPrivate)
-                {
-                    AnimeUpdater.Channel = ctx.Channel;
-                    await AnimeUpdater.SendMessage("Canal Seleccionado");
-                }
-                else
-                {
-                    await ctx.RespondAsync("No se pueden seleccionar mensajes privados para las publicaciones.");
-                }
-            }
-            else
-            {
-                await ctx.RespondAsync("Solo el creador del bot tiene acceso a este comando");
-            }
-        }   
-
 
         [Command("Help")]
         public async Task Help(CommandContext ctx)
