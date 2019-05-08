@@ -18,6 +18,7 @@ namespace VaultBot
         private FileSystemWatcher MasterWatcher = new FileSystemWatcher();
 
         private String _AnimePath = @"F:\FTP\Multimedia\Anime";
+        
         public AnimeHandler()
         {
             this.MasterWatcher.Path = _AnimePath;

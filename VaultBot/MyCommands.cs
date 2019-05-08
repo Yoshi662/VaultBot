@@ -10,11 +10,9 @@ using DSharpPlus.Entities;
 
 namespace VaultBot
 {
-    public class MyCommands
-    {
-        
-
-
+    [Obsolete("Esta clase no tiene uso, pero se mantendra para futuros comandos")]
+    public class MyCommands : BaseCommandModule
+    {    
         [Command("Ping")]
         public async Task Pinger(CommandContext ctx)
         {

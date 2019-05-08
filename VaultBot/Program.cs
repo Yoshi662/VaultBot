@@ -16,7 +16,7 @@ namespace VaultBot
 	{
 		public AnimeHandler AnimeUpdater { get; set; } = new AnimeHandler();
 		public DiscordClient Client { get; set; }
-		public static CommandsNextModule Commands { get; set; }
+		public static CommandsNextExtension Commands { get; set; }
 
         private static Program prog;
 
@@ -53,19 +53,11 @@ namespace VaultBot
 			this.Client.GuildAvailable += this.Client_GuildAvailable;
 			this.Client.ClientErrored += this.Client_ClientError;
 
-
-			Commands = Client.UseCommandsNext(new CommandsNextConfiguration
-			{
-				StringPrefix = "-"
-			});
-
-			Commands.RegisterCommands<MyCommands>();
-
 			await this.Client.ConnectAsync();
 
-			AnimeUpdater.Channel = await Client.GetChannelAsync(555836205095452684);
+            AnimeUpdater.Channel = await Client.GetChannelAsync(555836205095452684);
 
-			await Task.Delay(-1);
+            await Task.Delay(-1);
 		}
 
 
