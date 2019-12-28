@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace VaultBot
 {
@@ -18,7 +19,8 @@ namespace VaultBot
         private FileSystemWatcher MasterWatcher = new FileSystemWatcher();
 
         private String _AnimePath = @"F:\FTP\Multimedia\Anime";
-        
+
+        public Regex HS_regex = new Regex(@"(\[HorribleSubs\] )([\w ]*)(- )(\d*)( \[\d{4}p\])(.\w{3})");
         public AnimeHandler()
         {
             this.MasterWatcher.Path = _AnimePath;
@@ -41,16 +43,42 @@ namespace VaultBot
         {
             FileAttributes attributes = File.GetAttributes(e.FullPath);
             String Nombre = e.Name.Split('\\').Last();
-            if (attributes.HasFlag(FileAttributes.Directory))
-                SendMessage($"Nuevo Anime: {Nombre}");
-            else
-                SendMessage($"Nuevo EP: {Nombre}");
-        }
-       
+            bool isHS = HS_regex.IsMatch(Nombre);
 
-        public async Task SendMessage(String s)
-        {
-            await _Channel.SendMessageAsync(s);
+            if(isHS)
+            {
+                String[] HS_subs = HS_regex.Split(Nombre);
+                SendEmbed(HS_subs[2], HS_subs[4]);
+            } else
+            {
+                Nombre = Nombre.Replace(".mkv", "");
+                Nombre = Nombre.Replace(".!qB", "");
+                SendEmbed(Nombre);
+            }
         }
+
+        private void SendEmbed(String archivo)
+        {
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+                        .WithTitle(archivo)
+                        .WithDescription("Ahora disponible en el servidor")
+                        .WithColor(new DiscordColor(0x2461DC))
+                        .WithFooter(
+                            "A Yoshi's Bot",
+                            "https://i.imgur.com/rT9YocG.jpg"
+                        ).WithThumbnailUrl("https://i.imgur.com/QeBaVkD.png");
+            DiscordEmbed embed = builder.Build();
+            Channel.SendMessageAsync(null, false, embed);
+        }
+
+        private void SendEmbed(String Nombre, String N_Ep)
+        {
+            SendEmbed($"{Nombre} - {N_Ep}");
+        }
+        private void SendEmbed(String Nombre, int N_Ep)
+        {
+            SendEmbed(Nombre, N_Ep.ToString());
+        }
+
     }
 }

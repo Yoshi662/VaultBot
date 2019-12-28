@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
@@ -14,11 +13,15 @@ namespace VaultBot
 {
 	public class Program
 	{
+		internal readonly String version = "1.0.1";
+		internal readonly String internalname = "Beautify";
+
 		public AnimeHandler AnimeUpdater { get; set; } = new AnimeHandler();
 		public DiscordClient Client { get; set; }
 		public static CommandsNextExtension Commands { get; set; }
 
         private static Program prog;
+		private DiscordChannel senderChannel;
 
 		public static void Main(string[] args)
 		{
@@ -55,9 +58,10 @@ namespace VaultBot
 
 			await this.Client.ConnectAsync();
 
-            AnimeUpdater.Channel = await Client.GetChannelAsync(555836205095452684);
+			senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.senderChannel));
+			AnimeUpdater.Channel = senderChannel;
 
-            await Task.Delay(-1);
+			await Task.Delay(-1);
 		}
 
 
@@ -92,5 +96,8 @@ namespace VaultBot
 
 		[JsonProperty("prefix")]
 		public string CommandPrefix { get; private set; }
+
+		[JsonProperty("senderChannel")]
+		public string senderChannel { get; private set; }
 	}
 }
