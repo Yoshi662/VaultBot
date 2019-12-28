@@ -18,12 +18,10 @@ namespace VaultBot
 
         private FileSystemWatcher MasterWatcher = new FileSystemWatcher();
 
-        private String _AnimePath = @"F:\FTP\Multimedia\Anime";
-
         public Regex HS_regex = new Regex(@"(\[HorribleSubs\] )([\w ]*)(- )(\d*)( \[\d{4}p\])(.\w{3})");
-        public AnimeHandler()
+        public AnimeHandler(String AnimePath)
         {
-            this.MasterWatcher.Path = _AnimePath;
+            this.MasterWatcher.Path = AnimePath;
 
             this.MasterWatcher.NotifyFilter = NotifyFilters.LastAccess
                                             | NotifyFilters.LastWrite

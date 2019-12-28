@@ -13,10 +13,10 @@ namespace VaultBot
 {
 	public class Program
 	{
-		internal readonly String version = "1.0.1";
+		internal readonly String version = "1.0.2";
 		internal readonly String internalname = "Beautify";
 
-		public AnimeHandler AnimeUpdater { get; set; } = new AnimeHandler();
+		public AnimeHandler AnimeUpdater { get; set; }
 		public DiscordClient Client { get; set; }
 		public static CommandsNextExtension Commands { get; set; }
 
@@ -58,6 +58,7 @@ namespace VaultBot
 
 			await this.Client.ConnectAsync();
 
+			AnimeUpdater = new AnimeHandler(cfgjson.AnimePath);
 			senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.senderChannel));
 			AnimeUpdater.Channel = senderChannel;
 
@@ -99,5 +100,7 @@ namespace VaultBot
 
 		[JsonProperty("senderChannel")]
 		public string senderChannel { get; private set; }
+		[JsonProperty("animePath")]
+		public string AnimePath { get; private set; }
 	}
 }
