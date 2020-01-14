@@ -124,7 +124,7 @@ namespace VaultBot
 
 			if (mensaje.StartsWith("-version"))
 			{
-				senderChannel.SendMessageAsync(null, false, GetVersionEmbed());
+				e.Channel.SendMessageAsync(null, false, GetVersionEmbed());
 			}
 
 			return Task.CompletedTask;
