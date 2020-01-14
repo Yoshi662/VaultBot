@@ -16,9 +16,9 @@ namespace VaultBot
         private DiscordChannel _Channel;
         public DiscordChannel Channel { get => _Channel; set => _Channel = value; }
 
-        private FileSystemWatcher MasterWatcher = new FileSystemWatcher();
+        public FileSystemWatcher MasterWatcher = new FileSystemWatcher();
 
-        public Regex HS_regex = new Regex(@"(\[HorribleSubs\] )([\w ]*)(- )(\d*)( \[\d{4}p\])(.\w{3})");
+        public Regex HS_regex = new Regex(@"(\[HorribleSubs\] )(.*)(- )(\d*)( \[\d{4}p\])([\.\w!]{4})*");
         public AnimeHandler(String AnimePath)
         {
             this.MasterWatcher.Path = AnimePath;
@@ -46,16 +46,23 @@ namespace VaultBot
             if(isHS)
             {
                 String[] HS_subs = HS_regex.Split(Nombre);
-                SendEmbed(HS_subs[2], HS_subs[4]);
+                for (int i = 0; i < HS_subs.Length; i++) //Quitar : espacios
+                {
+                    HS_subs[i] = HS_subs[i].Trim();
+                }
+                SendUpdateEmbed(HS_subs[2], HS_subs[4]);
             } else
             {
-                Nombre = Nombre.Replace(".mkv", "");
-                Nombre = Nombre.Replace(".!qB", "");
-                SendEmbed(Nombre);
+                String[] extensiones = { "mp4", "avi", "mkv", "!qB" }; //quitar : extensiones
+                foreach(string s in extensiones)
+                {
+                    Nombre.Replace($".{s}", "");
+                }
+                SendUpdateEmbed(Nombre);
             }
         }
 
-        private void SendEmbed(String archivo)
+        private void SendUpdateEmbed(String archivo)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
                         .WithTitle(archivo)
@@ -68,15 +75,13 @@ namespace VaultBot
             DiscordEmbed embed = builder.Build();
             Channel.SendMessageAsync(null, false, embed);
         }
-
-        private void SendEmbed(String Nombre, String N_Ep)
+        private void SendUpdateEmbed(String Nombre, String N_Ep)
         {
-            SendEmbed($"{Nombre} - {N_Ep}");
+            SendUpdateEmbed($"{Nombre} - {N_Ep}");
         }
-        private void SendEmbed(String Nombre, int N_Ep)
+        private void SendUpdateEmbed(String Nombre, int N_Ep)
         {
-            SendEmbed(Nombre, N_Ep.ToString());
+            SendUpdateEmbed(Nombre, N_Ep.ToString());
         }
-
     }
 }
