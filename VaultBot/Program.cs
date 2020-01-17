@@ -90,7 +90,19 @@ namespace VaultBot
 
         private Task Client_MessageCreated(MessageCreateEventArgs e)
         {
-            string mensaje = e.Message.Content.ToLower();
+            string mensaje = e.Message.Content;
+
+            if (mensaje.StartsWith("-new"))
+            {
+                string embedmensaje = mensaje.StartsWith("-new ") ? mensaje.Substring(5) : mensaje.Substring(4);
+                if (Regex.IsMatch(embedmensaje[0].ToString(), "[a-z]"))
+                {
+                    embedmensaje = embedmensaje[0].ToString().ToUpper() + embedmensaje.Substring(1);
+                }
+                senderChannel.SendMessageAsync(null, false, NewThingEmbed(embedmensaje));
+            }
+
+             mensaje = mensaje.ToLower();
 
             if (!mensaje.StartsWith("-")) return Task.CompletedTask;
 
@@ -127,14 +139,7 @@ namespace VaultBot
             {
                 e.Channel.SendMessageAsync(null, false, GetVersionEmbed());
             }
-            if (mensaje.StartsWith("-new"))
-            {
-                string embedmensaje = mensaje.StartsWith("-new ") ? mensaje.Substring(5) : mensaje.Substring(4);
-                if (Regex.IsMatch(embedmensaje[0].ToString(), "[a-z]")){
-                    embedmensaje = embedmensaje[0].ToString().ToUpper() + embedmensaje.Substring(1);
-                }
-                senderChannel.SendMessageAsync(null, false, NewThingEmbed(embedmensaje));
-            }
+           
 
             return Task.CompletedTask;
         }
