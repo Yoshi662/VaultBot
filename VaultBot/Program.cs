@@ -133,7 +133,7 @@ namespace VaultBot
                 if (Regex.IsMatch(embedmensaje[0].ToString(), "[a-z]")){
                     embedmensaje = embedmensaje[0].ToString().ToUpper() + embedmensaje.Substring(1);
                 }
-                e.Channel.SendMessageAsync(null, false, NewThingEmbed(embedmensaje));
+                senderChannel.SendMessageAsync(null, false, NewThingEmbed(embedmensaje));
             }
 
             return Task.CompletedTask;
