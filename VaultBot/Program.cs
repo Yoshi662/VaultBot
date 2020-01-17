@@ -129,7 +129,7 @@ namespace VaultBot
             }
             if (mensaje.StartsWith("-new"))
             {
-                string embedmensaje = mensaje.StartsWith("-new ") ? mensaje.Substring(3) : mensaje.Substring(4);
+                string embedmensaje = mensaje.StartsWith("-new ") ? mensaje.Substring(5) : mensaje.Substring(4);
                 if (Regex.IsMatch(embedmensaje[0].ToString(), "[a-z]")){
                     embedmensaje = embedmensaje[0].ToString().ToUpper() + embedmensaje.Substring(1);
                 }
