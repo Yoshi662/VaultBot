@@ -20,8 +20,8 @@ namespace VaultBot
 
     public class Program
     {
-        internal readonly String version = "1.6.4";
-        internal readonly String internalname = "Erisu";
+        internal readonly String version = "1.6.5";
+        internal readonly String internalname = "Erisu Rawrs :3\n";
 
         public AnimeHandler AnimeUpdater { get; set; }
         public DiscordClient Client { get; set; }

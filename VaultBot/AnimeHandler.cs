@@ -68,17 +68,17 @@ namespace VaultBot
                     }
                 }
 
-                bool isfinale = string.IsNullOrEmpty(ER_rawrs[4]),
-                     hasmultiplesubs = string.IsNullOrEmpty(ER_rawrs[6]);
-                string output = "\n" + (isfinale ? " FINALE" : "") + (hasmultiplesubs ? " Multi Subs" : "");
+                bool isfinale = Nombre.Contains("END"),
+                     hasmultiplesubs = Nombre.Contains("[Multiple Subtitle]");
+                string output = (hasmultiplesubs ? "\nMulti Subs" : "")+(isfinale ? "\nFINALE" : "");
 
-                SendUpdateEmbed(ER_rawrs[2], string.IsNullOrWhiteSpace(output) ? ER_rawrs[3] : ER_rawrs[2] + output);
+                SendUpdateEmbed(ER_rawrs[2], string.IsNullOrWhiteSpace(output) ? ER_rawrs[3] : ER_rawrs[3] + output);
 
             }
             else
             {
                 String[] extensiones = { "mp4", "avi", "mkv", "!qB" }; //quitar : extensiones
-                foreach(string s in extensiones)
+                foreach (string s in extensiones)
                 {
                     Nombre.Replace($".{s}", "");
                 }
