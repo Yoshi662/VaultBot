@@ -10,25 +10,26 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
 using System.Net.NetworkInformation;
-
+using Microsoft.Extensions.Logging;
+using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity;
+using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
-    //TODO
-    /*Crear propiedad privada que cambie si el supervisor de archivos de AnimeUpdater 
-     */
-
+    /* TODO: Hacer que el progreso de los recode se emita en otro canal*/
     public class Program
     {
-        internal readonly String version = "1.6.5";
-        internal readonly String internalname = "Erisu Rawrs :3\n";
+        internal static readonly String version = "2.0.0";
+        internal static readonly String internalname = "Reencode all the way";
 
-        public AnimeHandler AnimeUpdater { get; set; }
-        public DiscordClient Client { get; set; }
+        public static AnimeHandler AnimeUpdater { get; set; }
+        public static DiscordClient Client { get; set; }
 
         private static Program prog;
 
         private DiscordChannel senderChannel;
+        static CommandsNextExtension commands;
 
         public static void Main(string[] args)
         {
@@ -52,171 +53,96 @@ namespace VaultBot
                 TokenType = TokenType.Bot,
 
                 AutoReconnect = true,
-                LogLevel = LogLevel.Debug,
-                UseInternalLogHandler = true
+                MinimumLogLevel = LogLevel.Debug
             };
 
-            this.Client = new DiscordClient(cfg);
+            Client = new DiscordClient(cfg);
 
-            this.Client.Ready += this.Client_Ready;
-            this.Client.GuildAvailable += this.Client_GuildAvailable;
-            this.Client.ClientErrored += this.Client_ClientError;
-            this.Client.MessageCreated += Client_MessageCreated;
+            Client.Ready += this.Client_Ready;
+            Client.GuildAvailable += this.Client_GuildAvailable;
+            Client.ClientErrored += this.Client_ClientError;
 
-            await this.Client.ConnectAsync();
+            Client.UseInteractivity(new InteractivityConfiguration
+            {
+                PaginationBehaviour = DSharpPlus.Interactivity.Enums.PaginationBehaviour.Ignore,
+                Timeout = TimeSpan.FromMinutes(2)
+            });
 
-            AnimeUpdater = new AnimeHandler(cfgjson.AnimePath);
-            senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.senderChannel));
+            commands = Client.UseCommandsNext(new CommandsNextConfiguration
+            {
+                StringPrefixes = new[] {"-"}, //How the fuck this works?
+            });
+
+            commands.RegisterCommands<AnimeHandlerCommands>();
+
+            commands.CommandExecuted += this.Commands_CommandExecuted;
+            commands.CommandErrored += this.Commands_CommandErrored;
+
+            await Client.ConnectAsync();
+
+            AnimeUpdater = new AnimeHandler (cfgjson.AnimePath);
+            senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.SenderChannel));
             AnimeUpdater.Channel = senderChannel;
 
             await Task.Delay(-1);
         }
 
-        private Task Client_Ready(ReadyEventArgs e)
+        private Task Client_Ready(DiscordClient sender, ReadyEventArgs e)
         {
+            sender.Logger.Log(LogLevel.Information, "Client is ready to process events.");
+            return Task.CompletedTask;
+        }
 
-            e.Client.DebugLogger.LogMessage(LogLevel.Info, "Vaultbot", "Client is ready to process events.", DateTime.Now);
+        private Task Client_GuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+        {
+            sender.Logger.Log(LogLevel.Information, $"Guild available: {e.Guild.Name}");
 
             return Task.CompletedTask;
         }
 
-        private Task Client_GuildAvailable(GuildCreateEventArgs e)
+        private Task Client_ClientError(DiscordClient sender, ClientErrorEventArgs e)
         {
-            e.Client.DebugLogger.LogMessage(LogLevel.Info, "Vaultbot", $"Guild available: {e.Guild.Name}", DateTime.Now);
-
-            return Task.CompletedTask;
-        }
-
-        private Task Client_ClientError(ClientErrorEventArgs e)
-        {
-            e.Client.DebugLogger.LogMessage(LogLevel.Error, "Vaultbot", $"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
-
-            while (!HasInternetConnection())
-            {
-                e.Client.DebugLogger.LogMessage(LogLevel.Error, "Vaultbot", $"Can't connect to the Discord Servers. Reconnecting", DateTime.Now);
-                Thread.Sleep(5000);
-            }
+            sender.Logger.Log(LogLevel.Error, $"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             prog.RunBotAsync().GetAwaiter().GetResult();
             return Task.CompletedTask;
         }
 
-        private async Task<Task> Client_MessageCreated(MessageCreateEventArgs e)
+        private Task Commands_CommandExecuted(CommandsNextExtension ctx, CommandExecutionEventArgs e)
         {
+            // let's log the name of the command and user
+            e.Context.Client.Logger.LogInformation($"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'");
 
-            string mensaje = e.Message.Content;
-
-            if (mensaje.StartsWith("-new"))
-            {
-                string embedmensaje = mensaje.StartsWith("-new ") ? mensaje.Substring(5) : mensaje.Substring(4);
-                await senderChannel.SendMessageAsync(null, false, NewThingEmbed(embedmensaje));
-            }
-
-            mensaje = mensaje.ToLower();
-
-            if (!mensaje.StartsWith("-")) return Task.CompletedTask;
-
-            if (mensaje.StartsWith("-ping"))
-            {
-                await e.Message.RespondAsync("Pong! " + Client.Ping + "ms");
-                return Task.CompletedTask;
-            }
-
-            if (mensaje.StartsWith("-help"))
-            {
-                DiscordMember member = (DiscordMember)e.Author;
-                await member.SendMessageAsync(GenerateHelp(member));
-
-                await e.Message.RespondAsync("Ayuda enviada por mensaje privado");
-                return Task.CompletedTask;
-            }
-
-            if (mensaje.StartsWith("-status"))
-            {
-                bool status = AnimeUpdater.MasterWatcher.EnableRaisingEvents;
-                String texto = $"Notificaciones {(status ? "Activadas" : "Desactivadas")}";
-                DiscordColor color = new DiscordColor(status ? "#00ff00" : "#ff0000");
-                e.Channel.SendMessageAsync(null, false, QuickEmbed(texto, color));
-                return Task.CompletedTask;
-            }
-            //#00ff00 verde - #ff0000 rojo
-            if (mensaje.StartsWith("-start"))
-            {
-                AnimeUpdater.MasterWatcher.EnableRaisingEvents = true;
-                await Client.UpdateStatusAsync(null, UserStatus.Online, null);
-                String texto = $"Notificaciones activadas";
-                DiscordColor color = new DiscordColor("#00ff00");
-                await e.Channel.SendMessageAsync(null, false, QuickEmbed(texto, color));
-                return Task.CompletedTask;
-            }
-
-            if (mensaje.StartsWith("-stop"))
-            {
-                AnimeUpdater.MasterWatcher.EnableRaisingEvents = false;
-                await Client.UpdateStatusAsync(null, UserStatus.DoNotDisturb, null);
-                String texto = $"Notificaciones desactivadas";
-                DiscordColor color = new DiscordColor("#ff0000");
-                await e.Channel.SendMessageAsync(null, false, QuickEmbed(texto, color));
-                return Task.CompletedTask;
-            }
-
-            if (mensaje.StartsWith("-version"))
-            {
-                await e.Channel.SendMessageAsync(null, false, GetVersionEmbed());
-                return Task.CompletedTask;
-            }
-
-
+            // since this method is not async, let's return
+            // a completed task, so that no additional work
+            // is done
             return Task.CompletedTask;
         }
 
-        private DiscordEmbed NewThingEmbed(String titulo)
+        private async Task Commands_CommandErrored(CommandsNextExtension ctx, CommandErrorEventArgs e)
         {
-            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
-                        .WithTitle(titulo)
-                        .WithDescription("Ahora disponible en el servidor")
-                        .WithColor(new DiscordColor(0x2461DC))
-                        .WithFooter(
-                            "A Yoshi's Bot",
-                            "https://i.imgur.com/rT9YocG.jpg"
-                        ).WithThumbnailUrl("https://i.imgur.com/QeBaVkD.png");
-            return builder.Build();
-        }
-        public DiscordEmbed QuickEmbed(String s, DiscordColor color)
-        {
-            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
-                       .WithTitle(s)
-                       .WithColor(color) //0x2461DC
-                       .WithFooter(
-                           "A Yoshi's Bot",
-                           "https://i.imgur.com/rT9YocG.jpg"
-                       );
-            DiscordEmbed embed = builder.Build();
-            return embed;
-        }
-        public DiscordEmbed GetVersionEmbed()
-        {
-            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder();
-            embedBuilder.WithThumbnailUrl("https://i.imgur.com/QeBaVkD.png");
-            embedBuilder.WithFooter("Usando DSharpPlus", "https://dsharpplus.github.io/logo.png");
-            embedBuilder.WithTitle($"VaultBot - v.{version}");
-            embedBuilder.WithColor(new DiscordColor(0x2461DC));
-            embedBuilder.AddField("Version ", $"{internalname}");
-            embedBuilder.AddField("Codigo fuente", "Mira el codigo fuente en: https://github.com/Yoshi662/VaultBot");
-            embedBuilder.AddField("DSharpPlus", $"Version: {Client.VersionString}");
-            return embedBuilder.Build();
-        }
-        private string GenerateHelp(DiscordMember member)
-        {
-            String salida = ">>> Comandos Actuales:" +
-                "\n-Help: Muestra este texto de ayuda" +
-                "\n-Ping: Muestra la latencia del bot" +
-                "\n-Version: Muestra la version actual de VaultBot" +
-                "\n-Status: Muestra si las notificaciones estan activadas" +
-                "\n-Start: Activa las notificaciones" +
-                "\n-Stop: Para las notificaciones" +
-                "\n-New: Muestra una notificacion por el canal de Updates";
-            return salida;
+
+            // let's log the error details
+            e.Context.Client.Logger.LogError($"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+
+            // let's check if the error is a result of lack
+            // of required permissions
+            if (e.Exception is ChecksFailedException ex)
+            {
+                // yes, the user lacks required permissions, 
+                // let them know
+
+                var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
+
+                // let's wrap the response into an embed
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Access denied",
+                    Description = $"{emoji} You do not have the permissions required to execute this command.",
+                    Color = new DiscordColor(0xFF0000) // red
+                };
+                await e.Context.RespondAsync("", embed: embed);
+            }
         }
 
         private bool HasInternetConnection()
@@ -225,9 +151,9 @@ namespace VaultBot
             PingReply respuesta = sender.Send("discordapp.com");
             return respuesta.Status.HasFlag(IPStatus.Success);
         }
-    }
+	}
 
-    public struct ConfigJson
+	public struct ConfigJson
     {
         [JsonProperty("token")]
         public string Token { get; private set; }
@@ -236,9 +162,10 @@ namespace VaultBot
         public string CommandPrefix { get; private set; }
 
         [JsonProperty("senderChannel")]
-        public string senderChannel { get; private set; }
+        public string SenderChannel { get; private set; }
 
         [JsonProperty("animePath")]
-        public string AnimePath { get; private set; }
+		public string AnimePath { get; private set; }
+
     }
 }
