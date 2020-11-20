@@ -9,12 +9,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace VaultBot
 {
 	public class Encoder
 	{
-		public Queue<Encode> EncodeQueue;
+		const string QueuePath = ".\\CurrentQueue.json";
+
+
+		private Queue<Encode> EncodeQueue;
 
 		private static Encoder _instance;
 		public static Encoder Instance
@@ -28,17 +32,18 @@ namespace VaultBot
 		}
 
 		public void AddAnimeToQueue(Encode e) //E
-		{			
+		{
 			//We Add the anime to the queue.
 			if (!CheckIfExists(e.Anime))
 			{
 				Program.Client.Logger.Log(LogLevel.Information, Events.QueueAdd, $"Added \"{e.Anime.FullFileName}\" to the main queue");
 				EncodeQueue.Enqueue(e);
+				SaveCurentQueueToFile(QueuePath);
 				if (EncodeQueue.Count == 1)
 				{
 					Program.Client.Logger.Log(LogLevel.Debug, Events.Queue, "Main Loop Started, encodes pending = " + EncodeQueue.Count);
 					Thread th = new Thread(new ThreadStart(() => { EncodeLoop(); }));
-					th.Start();		
+					th.Start();
 				}
 			}
 		}
@@ -70,6 +75,7 @@ namespace VaultBot
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
 				e = EncodeQueue.Dequeue();
+				SaveCurentQueueToFile(QueuePath);
 			}
 		}
 
@@ -131,16 +137,29 @@ namespace VaultBot
 			th.Start();
 			th.Join();
 		}
+
+		public void SaveCurentQueueToFile(string path = QueuePath)
+		{
+			File.WriteAllText(path, JsonConvert.SerializeObject(EncodeQueue));
+		}
+
+		public Queue<Encode> LoadQueueFromFile(string path = QueuePath)
+		{
+			return JsonConvert.DeserializeObject<Queue<Encode>>(
+				File.ReadAllText(path)
+			);
+		}
 	}
 	public class Encode
 	{
 		public ER_Anime Anime { get; set; }
-		public DateTime? EncodeDate { get; private set; }
-
+		public DateTime EncodeDate { get; private set; }
 		public Encode(ER_Anime anime, DateTime EncodeDate)
 		{
 			this.Anime = anime;
 			this.EncodeDate = EncodeDate;
 		}
+
+
 	}
 }

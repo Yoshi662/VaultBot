@@ -17,7 +17,9 @@ using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
-    /* TODO: Hacer que el progreso de los recode se emita en otro canal*/
+    /* TODO:    Hacer que el progreso de los recode se emita en otro canal
+                Guardar la cola en un archivo para recuperarla cuando se vuelva a iniciar el bot
+     */
     public class Program
     {
         internal static readonly String version = "2.0.0";
@@ -82,7 +84,8 @@ namespace VaultBot
 
             AnimeUpdater = new AnimeHandler (cfgjson.AnimePath);
             senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.SenderChannel));
-            AnimeUpdater.Channel = senderChannel;
+			AnimeUpdater.Channel = senderChannel;
+            Encoder.Instance.LoadQueueFromFile();
 
             await Task.Delay(-1);
         }
