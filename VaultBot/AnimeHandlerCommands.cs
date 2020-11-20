@@ -13,13 +13,15 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace VaultBot
 {
 	public class AnimeHandlerCommands : BaseCommandModule
 	{
-		[Command("test"), RequireOwner(), Aliases(new[] {"t"})]
-		public async Task test(CommandContext ctx) {
+		[Command("test"), RequireOwner(), Aliases(new[] { "t" })]
+		public async Task test(CommandContext ctx)
+		{
 			String[] files = Directory.GetFiles(@"D:\temp\vaultbotTesting");
 			foreach (string f in files)
 			{
@@ -32,6 +34,18 @@ namespace VaultBot
 				Thread.Sleep(100);
 			}
 		}
+		[Command("queue"), RequireOwner(), Aliases(new[] { "q" })]
+		public async Task queue(CommandContext ctx)
+		{
+			string json = JsonConvert.SerializeObject(Encoder.Instance.EncodeQueue, Formatting.Indented);
+			if (json.Length < 1950)
+			{
+				ctx.RespondAsync("```json" + json + "```");
+			}else {
+				ctx.RespondWithFileAsync("CurrentQueue.json",HelperMethods.StringToMemoryStream(json));
+			}
+		}
+		
 
 
 		[Command("ping"), Description("Hace un ping al bot")]
@@ -135,7 +149,7 @@ namespace VaultBot
 
 
 
-		[Command("respuestaingeniosa"), Description("Tu madre"), RequirePermissions(Permissions.Administrator), Aliases(new[] {"ri"})]
+		[Command("respuestaingeniosa"), Description("Tu madre"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "ri" })]
 		public async Task RI(CommandContext ctx)
 		{
 			ctx.RespondAsync("`Tu madre`\n" + @"https://i.pinimg.com/originals/66/8e/af/668eafb46ffa374281d272e0d98719e4.gif");

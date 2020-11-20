@@ -17,8 +17,7 @@ namespace VaultBot
 	{
 		const string QueuePath = ".\\CurrentQueue.json";
 
-
-		private Queue<Encode> EncodeQueue;
+		public Queue<Encode> EncodeQueue { get; private set; }
 
 		private static Encoder _instance;
 		public static Encoder Instance
@@ -143,11 +142,13 @@ namespace VaultBot
 			File.WriteAllText(path, JsonConvert.SerializeObject(EncodeQueue));
 		}
 
-		public Queue<Encode> LoadQueueFromFile(string path = QueuePath)
-		{
-			return JsonConvert.DeserializeObject<Queue<Encode>>(
-				File.ReadAllText(path)
-			);
+		public void LoadQueueFromFile(string path = QueuePath)
+		{	
+			if(File.Exists(path)){
+				EncodeQueue =  JsonConvert.DeserializeObject<Queue<Encode>>(
+					File.ReadAllText(path)
+				);
+			} 
 		}
 	}
 	public class Encode

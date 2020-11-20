@@ -18,11 +18,10 @@ using DSharpPlus.CommandsNext.Exceptions;
 namespace VaultBot
 {
     /* TODO:    Hacer que el progreso de los recode se emita en otro canal
-                Guardar la cola en un archivo para recuperarla cuando se vuelva a iniciar el bot
      */
     public class Program
     {
-        internal static readonly String version = "2.0.0";
+        internal static readonly String version = "2.0.1";
         internal static readonly String internalname = "Reencode all the way";
 
         public static AnimeHandler AnimeUpdater { get; set; }
