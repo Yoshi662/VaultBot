@@ -17,8 +17,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
-    /* TODO:    Hacer que el progreso de los recode se emita en otro canal
-     */
+    /* TODO: COMPROBAR QUE TODO FUNCIONA*/
     public class Program
     {
         internal static readonly String version = "2.0.1";
@@ -84,7 +83,9 @@ namespace VaultBot
             AnimeUpdater = new AnimeHandler (cfgjson.AnimePath);
             senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.SenderChannel));
 			AnimeUpdater.Channel = senderChannel;
-            Encoder.Instance.LoadQueueFromFile();
+			Encoder.Instance.LoadQueueFromFile();
+			Encoder.Instance.UpdatesChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.QueueChannel));
+            Encoder.Instance.SendUpdates = true;
 
             await Task.Delay(-1);
         }
@@ -164,9 +165,12 @@ namespace VaultBot
         public string CommandPrefix { get; private set; }
 
         [JsonProperty("senderChannel")]
-        public string SenderChannel { get; private set; }
+		public string SenderChannel { get; private set; }
 
-        [JsonProperty("animePath")]
+        [JsonProperty("queueChannel")]
+		public string QueueChannel { get; private set; }
+
+		[JsonProperty("animePath")]
 		public string AnimePath { get; private set; }
 
     }

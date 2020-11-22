@@ -19,10 +19,12 @@ namespace VaultBot
 {
 	public class AnimeHandlerCommands : BaseCommandModule
 	{
-		[Command("test"), RequireOwner(), Aliases(new[] { "t" })]
+		//This might get useful one day
+		[Command("test"), RequireOwner(), Hidden()] //Aliases(new[] { "t" }),
 		public async Task test(CommandContext ctx)
 		{
-			String[] files = Directory.GetFiles(@"D:\temp\vaultbotTesting");
+			Encoder.Instance.SendUpdateToChannel();
+			/*String[] files = Directory.GetFiles(@"D:\temp\vaultbotTesting");
 			foreach (string f in files)
 			{
 				File.Move(f, f + ".!qB");
@@ -32,20 +34,31 @@ namespace VaultBot
 			{
 				File.Move(f + ".!qB", f.Substring(0, f.Length));
 				Thread.Sleep(100);
-			}
+			}*/
 		}
-		[Command("queue"), RequireOwner(), Aliases(new[] { "q" })]
+
+		/*[Command("getqueue"), RequireOwner(), Aliases(new[] { "gq" }), Hidden()]
 		public async Task queue(CommandContext ctx)
 		{
 			string json = JsonConvert.SerializeObject(Encoder.Instance.EncodeQueue, Formatting.Indented);
 			if (json.Length < 1950)
 			{
 				ctx.RespondAsync("```json" + json + "```");
-			}else {
-				ctx.RespondWithFileAsync("CurrentQueue.json",HelperMethods.StringToMemoryStream(json));
+			} else
+			{
+				ctx.RespondWithFileAsync("CurrentQueue.json", HelperMethods.StringToMemoryStream(json));
+			}
+		}*/
+		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Hidden()]
+		public async Task CleanDuplicates(CommandContext ctx, [RemainingText(), Description("Ruta completa a la carpeta")] string rutacompleta)
+		{
+			string[] files = Directory.GetFiles(rutacompleta);
+			foreach (string f in files)
+			{
+				ER_Anime e = new ER_Anime(f);
+				HelperMethods.RemoveDuplicates(e);
 			}
 		}
-		
 
 
 		[Command("ping"), Description("Hace un ping al bot")]
@@ -107,7 +120,7 @@ namespace VaultBot
 			await ctx.RespondAsync(null, false, embedBuilder.Build());
 		}
 
-		[Command("reencode"), Description("Recodifica un archivo y te avisa cuando ha terminado\n**Sobreescribe el archivo original**")]
+		[Command("reencode"), Description("Añade un archivo manualmente a la cola\n**Sobreescribe el archivo original**"), Aliases(new[] { "e", "encode", "addqueue" })]
 		public async Task ReEncode(CommandContext ctx, [Description("Ruta completa del archivo a recodificar"), RemainingText] String Ruta_Completa)
 		{
 			if (!File.Exists(Ruta_Completa))
@@ -115,35 +128,44 @@ namespace VaultBot
 				ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha encontrado el archivo", "", false, "#ff0000"));
 			} else
 			{
-				DiscordMessage confirm = await ctx.RespondAsync("Empezando recodificado:");
-				String outputpath = Path.GetDirectoryName(Ruta_Completa) + "Recode_" + Path.GetFileName(Ruta_Completa);
-				Process HandBrakeCLI = new Process();
-				HandBrakeCLI.StartInfo = new ProcessStartInfo
+				try
 				{
-					FileName = "HandbrakeCLI.exe",
-					RedirectStandardOutput = true,
-					UseShellExecute = false,
-					CreateNoWindow = true,
-					Arguments = $"--preset-import-file \"AnimePreset.json\" -Z \"General Purpose Anime H.265 10-bit\" --input \"{Ruta_Completa}\" --output \"{outputpath}\""
-				};
-				HandBrakeCLI.Start();
-				HandBrakeCLI.BeginOutputReadLine();
-
-				DateTime lastedit = DateTime.Now;
-				HandBrakeCLI.OutputDataReceived += async (object sender, DataReceivedEventArgs e) =>
+					ER_Anime e = new ER_Anime(Ruta_Completa);
+					Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true);
+					ctx.RespondAsync($"Se ha añadido {e.Title} - {e.N_Ep} a la cola\nSe recodificara lo antes posible");
+				}
+				catch (ArgumentException)
 				{
-					if (!String.IsNullOrEmpty(e.Data))
+					DiscordMessage confirm = await ctx.RespondAsync("Empezando recodificado:\nEste recode se ejecutara paralelamente a la cola de animes");
+					String outputpath = Path.GetDirectoryName(Ruta_Completa) + "Recode_" + Path.GetFileName(Ruta_Completa);
+					Process HandBrakeCLI = new Process();
+					HandBrakeCLI.StartInfo = new ProcessStartInfo
 					{
-						if (DateTime.Now - lastedit > TimeSpan.FromMinutes(60))
+						FileName = "HandbrakeCLI.exe",
+						RedirectStandardOutput = true,
+						UseShellExecute = false,
+						CreateNoWindow = true,
+						Arguments = $"--preset-import-file \"AnimePreset.json\" -Z \"General Purpose Anime H.265 10-bit\" --input \"{Ruta_Completa}\" --output \"{outputpath}\""
+					};
+					HandBrakeCLI.Start();
+					HandBrakeCLI.BeginOutputReadLine();
+
+					DateTime lastedit = DateTime.Now;
+					HandBrakeCLI.OutputDataReceived += async (object sender, DataReceivedEventArgs e) =>
+					{
+						if (!String.IsNullOrEmpty(e.Data))
 						{
-							confirm = await confirm.ModifyAsync($"Reccodificando archivo\n`{e.Data}`");
-							lastedit = DateTime.Now;
+							if (DateTime.Now - lastedit > TimeSpan.FromMinutes(60))
+							{
+								confirm = await confirm.ModifyAsync($"Reccodificando archivo\n`{e.Data}`");
+								lastedit = DateTime.Now;
+							}
 						}
-					}
-				};
-				HandBrakeCLI.WaitForExit();
-				confirm.DeleteAsync();
-				ctx.RespondAsync(ctx.User.Mention + " - Ha finalizado el recodificado del archivo");
+					};
+					HandBrakeCLI.WaitForExit();
+					confirm.DeleteAsync();
+					ctx.RespondAsync(ctx.User.Mention + " - Ha finalizado el recodificado del archivo");
+				}
 			}
 		}
 

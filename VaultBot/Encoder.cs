@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using DSharpPlus.Entities;
 
 namespace VaultBot
 {
@@ -17,7 +18,10 @@ namespace VaultBot
 	{
 		const string QueuePath = ".\\CurrentQueue.json";
 
-		public Queue<Encode> EncodeQueue { get; private set; }
+		public bool SendUpdates = false;
+		public DiscordChannel UpdatesChannel { get; set; }
+
+		public LinkedList<Encode> EncodeQueue { get; private set; }
 
 		private static Encoder _instance;
 		public static Encoder Instance
@@ -27,16 +31,22 @@ namespace VaultBot
 
 		private Encoder()
 		{
-			EncodeQueue = new Queue<Encode>();
+			EncodeQueue = new LinkedList<Encode>();
 		}
 
-		public void AddAnimeToQueue(Encode e) //E
+		public void AddAnimeToQueue(Encode e, bool priority = false) //E
 		{
 			//We Add the anime to the queue.
 			if (!CheckIfExists(e.Anime))
 			{
 				Program.Client.Logger.Log(LogLevel.Information, Events.QueueAdd, $"Added \"{e.Anime.FullFileName}\" to the main queue");
-				EncodeQueue.Enqueue(e);
+				
+				if (priority)
+				{
+					EncodeQueue.AddFirst(e);
+				} else{
+					EncodeQueue.AddLast(e);
+				}
 				SaveCurentQueueToFile(QueuePath);
 				if (EncodeQueue.Count == 1)
 				{
@@ -45,6 +55,7 @@ namespace VaultBot
 					th.Start();
 				}
 			}
+			SendUpdateToChannel();
 		}
 
 		private bool CheckIfExists(ER_Anime input)
@@ -67,21 +78,22 @@ namespace VaultBot
 		{
 			while (EncodeQueue.Count > 0)
 			{
-				Encode e = EncodeQueue.Peek();
+				Encode e = EncodeQueue.First();
 				WaitUntilNextEncode(e);
 				e.Anime = HelperMethods.RemoveDuplicates(e.Anime);
 				Encode(e.Anime);
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
-				e = EncodeQueue.Dequeue();
+				EncodeQueue.RemoveFirst();
 				SaveCurentQueueToFile(QueuePath);
+				SendUpdateToChannel();
 			}
 		}
 
 		private void WaitUntilNextEncode(Encode e)
 		{
 			while (DateTime.Now < e.EncodeDate)
-			{
+			{  //TODO Incrase sleep on future 
 				Thread.Sleep(TimeSpan.FromSeconds(1));
 			}
 		}
@@ -113,22 +125,24 @@ namespace VaultBot
 				};
 				Program.Client.Logger.Log(LogLevel.Information, Events.EncodeStart, $"\"{preencode.Title} - {preencode.N_Ep}\" - Has Started Encoding");
 				HandBrakeCLI.Start();
-				HandBrakeCLI.BeginOutputReadLine();
-
-				//I know that commenting code is bad. HOWEVER I plan to use this on a next iteration of the code so here it stays
-				/*DateTime lastedit = DateTime.Now;
-				HandBrakeCLI.OutputDataReceived += async (object sender, DataReceivedEventArgs e) =>
+				if (SendUpdates && UpdatesChannel != null)
 				{
-					if (!String.IsNullOrEmpty(e.Data))
+					HandBrakeCLI.BeginOutputReadLine();
+					DateTime lastedit = DateTime.Now;
+					HandBrakeCLI.OutputDataReceived += async (object sender, DataReceivedEventArgs e) =>
 					{
-						//TODO increase timespan to 5 - 10 - 15 min ON RELEASE
-						if (DateTime.Now - lastedit > TimeSpan.FromSeconds(5))
+						if (!String.IsNullOrEmpty(e.Data))
 						{
-							//Console.WriteLine($"Reccodificando archivo\n{preencode.Title} - {preencode.N_Ep}\n{e.Data}");
-							lastedit = DateTime.Now;
+							//TODO increase timespan to 5 - 10 - 15 min ON RELEASE
+							if (DateTime.Now - lastedit > TimeSpan.FromSeconds(5))
+							{
+								SendUpdateToChannel(e.Data);
+								lastedit = DateTime.Now;
+							}
 						}
-					}
-				};*/
+					};
+
+				}
 				HandBrakeCLI.WaitForExit();
 				Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{preencode.Title} - {preencode.N_Ep}\" - Has Finished Encoding");
 				File.Delete(preencode.FullPath);
@@ -143,13 +157,52 @@ namespace VaultBot
 		}
 
 		public void LoadQueueFromFile(string path = QueuePath)
-		{	
-			if(File.Exists(path)){
-				EncodeQueue =  JsonConvert.DeserializeObject<Queue<Encode>>(
+		{
+			if (File.Exists(path))
+			{
+				EncodeQueue = JsonConvert.DeserializeObject<LinkedList<Encode>>(
 					File.ReadAllText(path)
 				);
-			} 
+			}
 		}
+
+		public async void SendUpdateToChannel(string data = "") //TODO sustituir embed especifico por 
+		{
+			DiscordEmbedBuilder builder = new DiscordEmbedBuilder(
+			HelperMethods.QuickEmbed(
+				@"Current Queue",
+				EncodeQueue.Count > 0 ? @"*" + EncodeQueue.Count + " Elementos en la cola*" : @"*No hay items en la cola ahora mismo*"
+			));
+			Encode[] encodes = EncodeQueue.ToArray();
+			
+			builder.WithTimestamp(DateTime.Now);
+
+			if (!string.IsNullOrWhiteSpace(data))
+				builder.AddField($"{encodes[0].Anime.Title} - {encodes[0].Anime.N_Ep}", "`" + data.Substring(23) + "`");
+
+			if (EncodeQueue.Count > 1)
+			{
+				for (int i = 1; i < EncodeQueue.Count; i++)
+				{
+					builder.AddField($"{encodes[i].Anime.Title} - {encodes[i].Anime.N_Ep}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
+				}
+			}
+			try
+			{
+				DiscordMessage msg = UpdatesChannel.GetPinnedMessagesAsync().Result.First();
+				msg.ModifyAsync(null, builder.Build());
+			}
+			catch (InvalidOperationException)
+			{
+				DiscordMessage msg = await UpdatesChannel.SendMessageAsync(null, false, builder.Build());
+				await msg.PinAsync();
+			}
+			
+
+
+			//UpdatesChannel.SendMessageAsync(null, false, builder.Build());
+		}
+
 	}
 	public class Encode
 	{
