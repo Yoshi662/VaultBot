@@ -94,7 +94,7 @@ namespace VaultBot
 		{
 			while (DateTime.Now < e.EncodeDate)
 			{  //TODO Incrase sleep on future 
-				Thread.Sleep(TimeSpan.FromSeconds(10));
+				Thread.Sleep(TimeSpan.FromMinutes(1));
 			}
 		}
 
@@ -133,7 +133,6 @@ namespace VaultBot
 					{
 						if (!String.IsNullOrEmpty(e.Data))
 						{
-							//TODO increase timespan to 5 - 10 - 15 min ON RELEASE
 							if (DateTime.Now - lastedit > TimeSpan.FromMinutes(15))
 							{
 								lastedit = DateTime.Now;
@@ -166,7 +165,7 @@ namespace VaultBot
 			}
 		}
 
-		public async void SendUpdateToChannel(string data = "") //TODO sustituir embed especifico por 
+		public async void SendUpdateToChannel(string data = "")
 		{
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder(
 			HelperMethods.QuickEmbed(

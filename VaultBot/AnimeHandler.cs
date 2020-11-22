@@ -97,9 +97,8 @@ namespace VaultBot
 						output += Newanime.IsFinale ? "**FINALE**" : "";
 						output += Newanime.HasMulti ? "*Multi Subs*" : "";
 					}
-					//TODO descomentar en version final
 					Program.Client.Logger.Log(LogLevel.Information, Events.AnimePublished, $"\"{Newanime.FullFileName}\" Has been downloaded");
-					//await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(output, "Ahora disponible en el servidor"));
+					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(output, "Ahora disponible en el servidor"));
 
 				} else //We just publish the anime
 				{
