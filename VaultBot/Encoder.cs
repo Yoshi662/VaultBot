@@ -182,7 +182,7 @@ namespace VaultBot
 
 			if (EncodeQueue.Count > 1)
 			{
-				for (int i = !string.IsNullOrWhiteSpace(data) ? 0 : 1; i < EncodeQueue.Count; i++)
+				for (int i = string.IsNullOrWhiteSpace(data) ? 0 : 1; i < EncodeQueue.Count; i++)
 				{
 					builder.AddField($"{encodes[i].Anime.Title} - {encodes[i].Anime.N_Ep}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
 				}

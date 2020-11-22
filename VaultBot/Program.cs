@@ -20,7 +20,7 @@ namespace VaultBot
     /* TODO: COMPROBAR QUE TODO FUNCIONA*/
     public class Program
     {
-        internal static readonly String version = "2.0.1";
+        internal static readonly String version = "2.0.3";
         internal static readonly String internalname = "Reencode all the way";
 
         public static AnimeHandler AnimeUpdater { get; set; }
