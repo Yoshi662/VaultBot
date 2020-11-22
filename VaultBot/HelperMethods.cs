@@ -24,7 +24,7 @@ namespace VaultBot
 			builder.WithTitle(titulo)
 			.WithDescription(descripcion)
 			.WithColor(new DiscordColor(color))
-			.WithThumbnail(@"https://i.imgur.com/DxT09uJ.png"));
+			.WithThumbnail(@"https://i.imgur.com/DxT09uJ.png");
 			if (footerspam)
 			{
 				builder.WithFooter(

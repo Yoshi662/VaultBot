@@ -74,7 +74,7 @@ namespace VaultBot
 			return exists;
 		}
 
-		private void EncodeLoop()
+		public void EncodeLoop()
 		{
 			while (EncodeQueue.Count > 0)
 			{
@@ -94,7 +94,7 @@ namespace VaultBot
 		{
 			while (DateTime.Now < e.EncodeDate)
 			{  //TODO Incrase sleep on future 
-				Thread.Sleep(TimeSpan.FromSeconds(1));
+				Thread.Sleep(TimeSpan.FromSeconds(10));
 			}
 		}
 
@@ -134,10 +134,10 @@ namespace VaultBot
 						if (!String.IsNullOrEmpty(e.Data))
 						{
 							//TODO increase timespan to 5 - 10 - 15 min ON RELEASE
-							if (DateTime.Now - lastedit > TimeSpan.FromSeconds(5))
+							if (DateTime.Now - lastedit > TimeSpan.FromMinutes(15))
 							{
-								SendUpdateToChannel(e.Data);
 								lastedit = DateTime.Now;
+								SendUpdateToChannel(e.Data);
 							}
 						}
 					};
@@ -182,7 +182,7 @@ namespace VaultBot
 
 			if (EncodeQueue.Count > 1)
 			{
-				for (int i = 1; i < EncodeQueue.Count; i++)
+				for (int i = !string.IsNullOrWhiteSpace(data) ? 0 : 1; i < EncodeQueue.Count; i++)
 				{
 					builder.AddField($"{encodes[i].Anime.Title} - {encodes[i].Anime.N_Ep}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
 				}

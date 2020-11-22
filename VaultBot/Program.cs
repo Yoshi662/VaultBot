@@ -85,7 +85,12 @@ namespace VaultBot
 			AnimeUpdater.Channel = senderChannel;
 			Encoder.Instance.LoadQueueFromFile();
 			Encoder.Instance.UpdatesChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.QueueChannel));
-            Encoder.Instance.SendUpdates = true;
+			Encoder.Instance.SendUpdates = true;
+			Encoder.Instance.SendUpdateToChannel();
+
+            if(Encoder.Instance.EncodeQueue.Count > 0){
+                Encoder.Instance.EncodeLoop();
+            }
 
             await Task.Delay(-1);
         }
