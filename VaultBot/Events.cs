@@ -19,6 +19,8 @@ namespace VaultBot
 		/// </summary
 		public static EventId Queue { get; } = new EventId(210, "QUEUE");
 		public static EventId QueueAdd { get; } = new EventId(211, "QUEUE_ADD");
+		public static EventId QueueLoad { get; } = new EventId(212, "QUEUE_LOAD");
+		public static EventId QueueSave { get; } = new EventId(213, "QUEUE_SAVE");
 
 		/// <summary>
 		/// Default Event for Anime Related Events

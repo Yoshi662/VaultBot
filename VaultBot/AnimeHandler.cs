@@ -87,18 +87,23 @@ namespace VaultBot
 
 
 					//Finally we send the update to the server
-					string output = $"{Newanime.Title} - {Newanime.N_Ep}";
+					string titleOutput = $"{Newanime.Title} - {Newanime.N_Ep}";
 					if (Newanime.HasMulti && Newanime.IsFinale)
 					{
-						output += "\n**FINALE** - *Multi Subs*";
+						titleOutput += "\n**FINALE** - *Multi Subs*";
 					} else
 					{
-						output += "\n";
-						output += Newanime.IsFinale ? "**FINALE**" : "";
-						output += Newanime.HasMulti ? "*Multi Subs*" : "";
+						titleOutput += "\n";
+						titleOutput += Newanime.IsFinale ? "**FINALE**" : "";
+						titleOutput += Newanime.HasMulti ? "*Multi Subs*" : "";
 					}
+
+					string descOutput = "Ahora disponible en el servidor";
+					if (Newanime.IsV0) descOutput += "\nVersion Preliminar";
+					if (Newanime.IsV2) descOutput += "\nVersion Verificada";
+					
 					Program.Client.Logger.Log(LogLevel.Information, Events.AnimePublished, $"\"{Newanime.FullFileName}\" Has been downloaded");
-					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(output, "Ahora disponible en el servidor"));
+					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(titleOutput, descOutput));
 
 				} else //We just publish the anime
 				{

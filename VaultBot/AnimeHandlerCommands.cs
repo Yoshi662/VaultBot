@@ -20,11 +20,9 @@ namespace VaultBot
 	public class AnimeHandlerCommands : BaseCommandModule
 	{
 		//This might get useful one day
-		[Command("updateQueueMessage"), RequireOwner(), Hidden()] //Aliases(new[] { "t" }),
+		/*[Command("test"), RequireOwner(), Hidden()] //Aliases(new[] { "t" }),
 		public async Task test(CommandContext ctx)
-		{
-			Encoder.Instance.SendUpdateToChannel();
-		}
+		{ }*/
 
 		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Hidden()]
 		public async Task CleanDuplicates(CommandContext ctx, [RemainingText(), Description("Ruta completa a la carpeta")] string rutacompleta)
@@ -36,7 +34,6 @@ namespace VaultBot
 				HelperMethods.RemoveDuplicates(e);
 			}
 		}
-
 
 		[Command("ping"), Description("Hace un ping al bot")]
 		public async Task Pinger(CommandContext ctx)

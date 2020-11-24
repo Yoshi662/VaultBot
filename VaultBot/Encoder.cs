@@ -24,6 +24,9 @@ namespace VaultBot
 		public LinkedList<Encode> EncodeQueue { get; private set; }
 
 		private static Encoder _instance;
+		/// <summary>
+		/// Gets the current Singleton Instance of the <see cref="Encoder"/>
+		/// </summary>
 		public static Encoder Instance
 		{
 			get => _instance ?? (_instance ??= new Encoder());
@@ -40,11 +43,12 @@ namespace VaultBot
 			if (!CheckIfExists(e.Anime))
 			{
 				Program.Client.Logger.Log(LogLevel.Information, Events.QueueAdd, $"Added \"{e.Anime.FullFileName}\" to the main queue");
-				
+
 				if (priority)
 				{
 					EncodeQueue.AddFirst(e);
-				} else{
+				} else
+				{
 					EncodeQueue.AddLast(e);
 				}
 				SaveCurentQueueToFile(QueuePath);
@@ -78,9 +82,13 @@ namespace VaultBot
 		{
 			while (EncodeQueue.Count > 0)
 			{
-				Encode e = EncodeQueue.First();
-				WaitUntilNextEncode(e);
+				//We wait until the first encode datetime has reached
+				Encode e = WaitUntilFirstEncode();
+
+				//We remove the duplicates
 				e.Anime = HelperMethods.RemoveDuplicates(e.Anime);
+
+				//And we encode the anime
 				Encode(e.Anime);
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
@@ -89,13 +97,22 @@ namespace VaultBot
 				SendUpdateToChannel();
 			}
 		}
-
-		private void WaitUntilNextEncode(Encode e)
+		/// <summary>
+		/// This method waits until the Encode date of the First <see cref="VaultBot.Encode"/> in <see cref="EncodeQueue"/> (Updated Dynamically)
+		/// </summary>
+		private Encode WaitUntilFirstEncode()
 		{
+			Encode e = EncodeQueue.First();
 			while (DateTime.Now < e.EncodeDate)
-			{  //TODO Incrase sleep on future 
-				Thread.Sleep(TimeSpan.FromMinutes(1));
+			{
+				//TODO Update sleep time on release
+				Thread.Sleep(TimeSpan.FromSeconds(5));
+				if (!e.Equals(EncodeQueue.First))
+				{
+					e = EncodeQueue.First();
+				}
 			}
+			return e;
 		}
 
 		private void Encode(ER_Anime anime)
@@ -168,24 +185,31 @@ namespace VaultBot
 		public async void SendUpdateToChannel(string data = "")
 		{
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder(
+			//We create the title and desc referencing a base
 			HelperMethods.QuickEmbed(
-				@"Current Queue",
+				@"Recodificado de animes",
 				EncodeQueue.Count > 0 ? @"*" + EncodeQueue.Count + " Elementos en la cola*" : @"*No hay items en la cola ahora mismo*"
 			));
-			Encode[] encodes = EncodeQueue.ToArray();
-			
+			//we set the actual time
 			builder.WithTimestamp(DateTime.Now);
+			Encode[] encodes = EncodeQueue.ToArray();
 
+			//If we are not recoding something Data = ""
+			//So if we recieve data we will parse it so it's more readable
 			if (!string.IsNullOrWhiteSpace(data))
-				builder.AddField($"{encodes[0].Anime.Title} - {encodes[0].Anime.N_Ep}", "`" + data.Substring(23) + "`");
-
-			if (EncodeQueue.Count > 1)
 			{
+				builder.AddField($"{encodes[0].Anime.Title} - {encodes[0].Anime.N_Ep}", "`" + data.Substring(23) + "`");
+			}
+			if (EncodeQueue.Count >= 1) //IF we have elements on the queue
+			{
+				//Depending if we have data we choose to start on the first or on the second
 				for (int i = string.IsNullOrWhiteSpace(data) ? 0 : 1; i < EncodeQueue.Count; i++)
 				{
 					builder.AddField($"{encodes[i].Anime.Title} - {encodes[i].Anime.N_Ep}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
 				}
 			}
+
+			//If there is no message we created and we pin it
 			try
 			{
 				DiscordMessage msg = UpdatesChannel.GetPinnedMessagesAsync().Result.First();
@@ -196,10 +220,7 @@ namespace VaultBot
 				DiscordMessage msg = await UpdatesChannel.SendMessageAsync(null, false, builder.Build());
 				await msg.PinAsync();
 			}
-			
 
-
-			//UpdatesChannel.SendMessageAsync(null, false, builder.Build());
 		}
 
 	}
@@ -212,7 +233,5 @@ namespace VaultBot
 			this.Anime = anime;
 			this.EncodeDate = EncodeDate;
 		}
-
-
 	}
 }

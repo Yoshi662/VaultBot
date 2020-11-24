@@ -17,9 +17,12 @@ using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
+/* TODO LIST:
+ * Make possible to upload torrents / magnets and have them added automatically
+ */
     public class Program
     {
-        internal static readonly String version = "2.0.4";
+        internal static readonly String version = "2.0.5";
         internal static readonly String internalname = "Reencode all the way";
 
         public static AnimeHandler AnimeUpdater { get; set; }
@@ -117,46 +120,27 @@ namespace VaultBot
 
         private Task Commands_CommandExecuted(CommandsNextExtension ctx, CommandExecutionEventArgs e)
         {
-            // let's log the name of the command and user
             e.Context.Client.Logger.LogInformation($"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'");
-
-            // since this method is not async, let's return
-            // a completed task, so that no additional work
-            // is done
             return Task.CompletedTask;
         }
 
         private async Task Commands_CommandErrored(CommandsNextExtension ctx, CommandErrorEventArgs e)
         {
-
-            // let's log the error details
             e.Context.Client.Logger.LogError($"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
 
-            // let's check if the error is a result of lack
-            // of required permissions
             if (e.Exception is ChecksFailedException ex)
             {
-                // yes, the user lacks required permissions, 
-                // let them know
-
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
                 {
-                    Title = "Access denied",
-                    Description = $"{emoji} You do not have the permissions required to execute this command.",
+                    Title = "Acceso Denegado",
+                    Description = $"{emoji} No tienes los permisos necesarios para ejecutar este comando.",
                     Color = new DiscordColor(0xFF0000) // red
                 };
                 await e.Context.RespondAsync("", embed: embed);
             }
-        }
-
-        private bool HasInternetConnection()
-        {
-            Ping sender = new Ping();
-            PingReply respuesta = sender.Send("discordapp.com");
-            return respuesta.Status.HasFlag(IPStatus.Success);
         }
 	}
 
