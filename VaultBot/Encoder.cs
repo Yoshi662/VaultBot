@@ -170,6 +170,7 @@ namespace VaultBot
 		public void SaveCurentQueueToFile(string path = QueuePath)
 		{
 			File.WriteAllText(path, JsonConvert.SerializeObject(EncodeQueue));
+			Program.Client.Logger.Log(LogLevel.Debug, Events.QueueSave, "Queue has been saved in " + QueuePath);
 		}
 
 		public void LoadQueueFromFile(string path = QueuePath)
@@ -179,6 +180,7 @@ namespace VaultBot
 				EncodeQueue = JsonConvert.DeserializeObject<LinkedList<Encode>>(
 					File.ReadAllText(path)
 				);
+				Program.Client.Logger.Log(LogLevel.Debug, Events.QueueLoad, "Queue has been loaded from " + QueuePath);
 			}
 		}
 

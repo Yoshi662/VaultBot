@@ -98,10 +98,12 @@ namespace VaultBot
 						titleOutput += Newanime.HasMulti ? "*Multi Subs*" : "";
 					}
 
-					string descOutput = "Ahora disponible en el servidor";
-					if (Newanime.IsV0) descOutput += "\nVersion Preliminar";
-					if (Newanime.IsV2) descOutput += "\nVersion Verificada";
-					
+					string descOutput = "";
+					if (Newanime.IsV0) descOutput += "Version Preliminar\n";
+					if (Newanime.IsV2) descOutput += "Version Verificada\n";
+					descOutput += "Ahora disponible en el servidor";
+
+
 					Program.Client.Logger.Log(LogLevel.Information, Events.AnimePublished, $"\"{Newanime.FullFileName}\" Has been downloaded");
 					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(titleOutput, descOutput));
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -143,7 +144,11 @@ namespace VaultBot
 			}
 		}
 
-
+		/*[Command("addtorrent"), Description("Descarga un archivo en el servidor\n `\\\\Vault662\\Torrents\\TorrentsDescargados`"), Aliases(new[] {"torrent","add"})]
+		public async Task AddTorrent(CommandContext ctx, DiscordAttachment file){
+			WebClient client = new WebClient();
+			client.DownloadFile(file.Url, "V:\\Vault\\Torrents\\" + file.FileName);
+		}*/
 
 		[Command("respuestaingeniosa"), Description("Tu madre"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "ri" })]
 		public async Task RI(CommandContext ctx)
