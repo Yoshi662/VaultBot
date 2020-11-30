@@ -17,12 +17,9 @@ using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
-/* TODO LIST:
- * Make possible to upload torrents / magnets and have them added automatically
- */
     public class Program
     {
-        internal static readonly String version = "2.0.6";
+        internal static readonly String version = "2.1.0";
         internal static readonly String internalname = "Reencode all the way";
 
         public static AnimeHandler AnimeUpdater { get; set; }

@@ -12,8 +12,11 @@ namespace VaultBot
 	/// <summary>
 	/// Helper Class to convert from a Erai Raws Episode to properties
 	/// </summary>
-	public class ER_Anime : ICloneable
+	public class ER_Anime : Anime
 	{
+	/// <summary>
+	/// This is the Regex used in file validation
+	/// </summary>
 		public static Regex TitleRegex { get; } = new Regex(@"(\[Erai\-raws\] )(.*)( - \d{1,3})( END)?( \[v0\])?( \[v2\])?( *\[1080p\])(\[pre-enc\])?(\[Multiple Subtitle\])?(\.mkv)?(\.!qB)?");
 		public string Title { get; set; }
 		public string N_Ep { get; set; }
@@ -22,35 +25,14 @@ namespace VaultBot
 		public bool IsV0 { get; set; }
 		public bool IsV2 { get; set; }
 		public bool PreEncode { get; set; }
-		public string Extension { get; set; }
-		/// <summary>
-		/// This Only checks if it has the .!Qb Extension
-		/// </summary>
-		public bool IsDownloading { get; set; }
 
-		private string FolderPath { get; set; }
-		/// <summary>
-		/// It gets the full Absolute path to the EP
-		/// <para>Ex: "C:\Users\Yoshi\Homework\Itadaki!_Seieki_01_HMV.MKV"</para>
-		/// </summary>
-
-		public string FullPath { get { return FolderPath + "\\" + this.ToString(); } }
-		/// <summary>
-		/// It gets the File Name
-		/// <para>Ex: "Itadaki!_Seieki_01_HMV.MKV"</para>
-		/// </summary>
-		public string FullFileName { get { return this.ToString(); } }
-
-		public ER_Anime(string FullPath)
+		public ER_Anime(string FullPath) : base(FullPath)
 		{
 			if (!TitleRegex.IsMatch(FullPath))
 			{
 				throw new ArgumentException("The title sent does not match the Regex");
-			} else if (!Path.IsPathRooted(FullPath))
-			{
-				throw new ArgumentException("You have not provided a full path");
-			}
-			FolderPath = Path.GetDirectoryName(FullPath);
+			} 
+			
 			GroupCollection matches = TitleRegex.Match(FullPath).Groups;
 			Title = matches[2].Value.Trim();
 			N_Ep = matches[3].Value.Substring(2).Trim();
@@ -77,11 +59,5 @@ namespace VaultBot
 			if (IsDownloading) output += @".!qB";
 			return output;
 		}
-		public object Clone()
-		{
-			return this.MemberwiseClone();
-		}
-
-		public bool Exists() => File.Exists(this.FullPath);
 	}
 }

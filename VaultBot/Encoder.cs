@@ -16,6 +16,9 @@ namespace VaultBot
 {
 	public class Encoder
 	{
+	/*TODO Make it possible to add elements to the queue that are not ER_Anime
+	 
+	 */
 		const string QueuePath = ".\\CurrentQueue.json";
 
 		public bool SendUpdates = false;
@@ -105,8 +108,7 @@ namespace VaultBot
 			Encode e = EncodeQueue.First();
 			while (DateTime.Now < e.EncodeDate)
 			{
-				//TODO Update sleep time on release
-				Thread.Sleep(TimeSpan.FromSeconds(5));
+				Thread.Sleep(TimeSpan.FromMinutes(1));
 				if (!e.Equals(EncodeQueue.First))
 				{
 					e = EncodeQueue.First();
@@ -205,7 +207,9 @@ namespace VaultBot
 			if (EncodeQueue.Count >= 1) //IF we have elements on the queue
 			{
 				//Depending if we have data we choose to start on the first or on the second
-				for (int i = string.IsNullOrWhiteSpace(data) ? 0 : 1; i < EncodeQueue.Count; i++)
+				for (	int i = string.IsNullOrWhiteSpace(data) ? 0 : 1; //If there is data. we skip the first one since We've covered that already
+						i < (EncodeQueue.Count > 24 ? 24 : EncodeQueue.Count); //There is a limit of fields there can be in an embed
+						i++)
 				{
 					builder.AddField($"{encodes[i].Anime.Title} - {encodes[i].Anime.N_Ep}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
 				}
@@ -225,15 +229,5 @@ namespace VaultBot
 
 		}
 
-	}
-	public class Encode
-	{
-		public ER_Anime Anime { get; set; }
-		public DateTime EncodeDate { get; private set; }
-		public Encode(ER_Anime anime, DateTime EncodeDate)
-		{
-			this.Anime = anime;
-			this.EncodeDate = EncodeDate;
-		}
 	}
 }

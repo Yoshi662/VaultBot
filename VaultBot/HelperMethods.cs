@@ -15,16 +15,16 @@ namespace VaultBot
 		/// </summary>
 		/// <param name="titulo">Titulo del embed</param>
 		/// <param name="descripcion">Descripcion del embed</param>
+		/// <param name="thumbnail">Añade el Thumbnail por defecto</param>
 		/// <param name="color">Cadena Hexadecimal para el color del embed</param>
 		/// <param name="footerspam">Habilita el footerSpam "A Yoshi's bot"</param>
 		/// <returns></returns>
-		public static DiscordEmbed QuickEmbed(String titulo = "", string descripcion = "", bool footerspam = true, string color = "#2461DC")
+		public static DiscordEmbed QuickEmbed(String titulo = "", string descripcion = "", bool thumbnail = true ,bool footerspam = true, string color = "#2461DC")
 		{
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
 			builder.WithTitle(titulo)
 			.WithDescription(descripcion)
-			.WithColor(new DiscordColor(color))
-			.WithThumbnail(@"https://i.imgur.com/DxT09uJ.png");
+			.WithColor(new DiscordColor(color));
 			if (footerspam)
 			{
 				builder.WithFooter(
@@ -32,6 +32,7 @@ namespace VaultBot
 				"https://i.imgur.com/rT9YocG.jpg"
 				);
 			}
+			if(thumbnail) builder.WithThumbnail(@"https://i.imgur.com/DxT09uJ.png");
 			return builder.Build();
 		}
 
@@ -92,11 +93,13 @@ namespace VaultBot
 			//We keep some properties from the original property
 			Standard.HasMulti = Proposal.HasMulti;
 			Standard.IsFinale = Proposal.IsFinale;
-			Standard.PreEncode = Proposal.PreEncode; 
+			Standard.PreEncode = Proposal.PreEncode;
 
 			//We rename the file so we get rid of any unwanted tag.
-			File.Move(Proposal.FullPath, Standard.FullPath);
-
+			if (Proposal.Exists())
+			{
+				File.Move(Proposal.FullPath, Standard.FullPath);
+			}
 			return Proposal;
 		}
 	}

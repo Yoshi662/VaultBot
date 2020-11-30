@@ -98,57 +98,74 @@ namespace VaultBot
 		[Command("reencode"), Description("Añade un archivo manualmente a la cola\n**Sobreescribe el archivo original**"), Aliases(new[] { "e", "encode", "addqueue" })]
 		public async Task ReEncode(CommandContext ctx, [Description("Ruta completa del archivo a recodificar"), RemainingText] String Ruta_Completa)
 		{
-			if (!File.Exists(Ruta_Completa))
-			{
-				ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha encontrado el archivo", "", false, "#ff0000"));
-			} else
-			{
-				try
-				{
-					ER_Anime e = new ER_Anime(Ruta_Completa);
-					Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true);
-					ctx.RespondAsync($"Se ha añadido {e.Title} - {e.N_Ep} a la cola\nSe recodificara lo antes posible");
-				}
-				catch (ArgumentException)
-				{
-					DiscordMessage confirm = await ctx.RespondAsync("Empezando recodificado:\nEste recode se ejecutara paralelamente a la cola de animes");
-					String outputpath = Path.GetDirectoryName(Ruta_Completa) + "Recode_" + Path.GetFileName(Ruta_Completa);
-					Process HandBrakeCLI = new Process();
-					HandBrakeCLI.StartInfo = new ProcessStartInfo
-					{
-						FileName = "HandbrakeCLI.exe",
-						RedirectStandardOutput = true,
-						UseShellExecute = false,
-						CreateNoWindow = true,
-						Arguments = $"--preset-import-file \"AnimePreset.json\" -Z \"General Purpose Anime H.265 10-bit\" --input \"{Ruta_Completa}\" --output \"{outputpath}\""
-					};
-					HandBrakeCLI.Start();
-					HandBrakeCLI.BeginOutputReadLine();
+			bool isfile = Path.HasExtension(Ruta_Completa);
 
-					DateTime lastedit = DateTime.Now;
-					HandBrakeCLI.OutputDataReceived += async (object sender, DataReceivedEventArgs e) =>
+			if (isfile) //I'll will work on this later
+			{
+				if (File.Exists(Ruta_Completa))
+				{
+					try
 					{
-						if (!String.IsNullOrEmpty(e.Data))
+						ER_Anime e = new ER_Anime(Ruta_Completa);
+						Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true);
+						ctx.RespondAsync($"Se ha añadido {e.Title} - {e.N_Ep} a la cola\nSe recodificara lo antes posible");
+					}
+					catch (ArgumentException)
+					{
+						DiscordMessage confirm = await ctx.RespondAsync("Empezando recodificado:\nEste recode se ejecutara paralelamente a la cola de animes");
+						String outputpath = Path.GetDirectoryName(Ruta_Completa) + "Recode_" + Path.GetFileName(Ruta_Completa);
+						Process HandBrakeCLI = new Process();
+						HandBrakeCLI.StartInfo = new ProcessStartInfo
 						{
-							if (DateTime.Now - lastedit > TimeSpan.FromMinutes(60))
+							FileName = "HandbrakeCLI.exe",
+							RedirectStandardOutput = true,
+							UseShellExecute = false,
+							CreateNoWindow = true,
+							Arguments = $"--preset-import-file \"AnimePreset.json\" -Z \"General Purpose Anime H.265 10-bit\" --input \"{Ruta_Completa}\" --output \"{outputpath}\""
+						};
+						HandBrakeCLI.Start();
+						HandBrakeCLI.BeginOutputReadLine();
+
+						DateTime lastedit = DateTime.Now;
+						HandBrakeCLI.OutputDataReceived += async (object sender, DataReceivedEventArgs e) =>
+						{
+							if (!String.IsNullOrEmpty(e.Data))
 							{
-								confirm = await confirm.ModifyAsync($"Reccodificando archivo\n`{e.Data}`");
-								lastedit = DateTime.Now;
+								if (DateTime.Now - lastedit > TimeSpan.FromMinutes(15))
+								{
+									confirm = await confirm.ModifyAsync($"Reccodificando archivo\n`{e.Data}`");
+									lastedit = DateTime.Now;
+								}
 							}
-						}
-					};
-					HandBrakeCLI.WaitForExit();
-					confirm.DeleteAsync();
-					ctx.RespondAsync(ctx.User.Mention + " - Ha finalizado el recodificado del archivo");
+						};
+
+						HandBrakeCLI.WaitForExit();
+						confirm.DeleteAsync();
+						ctx.RespondAsync(ctx.User.Mention + " - Ha finalizado el recodificado del archivo");
+					}
+				} else
+				{
+					ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha encontrado el archivo", "", false, false, "#ff0000"));
 				}
 			}
 		}
 
-		/*[Command("addtorrent"), Description("Descarga un archivo en el servidor\n `\\\\Vault662\\Torrents\\TorrentsDescargados`"), Aliases(new[] {"torrent","add"})]
-		public async Task AddTorrent(CommandContext ctx, DiscordAttachment file){
-			WebClient client = new WebClient();
-			client.DownloadFile(file.Url, "V:\\Vault\\Torrents\\" + file.FileName);
-		}*/
+		[Command("addtorrent"), Description("Descarga un archivo en el servidor\nRuta de descarga:`\\\\Vault_662\\Torrents\\TorrentsDescargados`"), Aliases(new[] { "torrent", "add" })]
+		public async Task AddTorrent(CommandContext ctx)
+		{
+			try
+			{
+				DiscordAttachment file = ctx.Message.Attachments.First();
+				WebClient client = new WebClient();
+				client.DownloadFile(file.Url, Properties.Settings.Default.TorrentFolder + file.FileName);
+				ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("Se ha descargado el torrent"));
+			}
+			catch (Exception e)
+			{
+				ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha podido descargar el torrent", "Error: " + e.Message, false, false, DiscordColor.Red.ToString()));
+			}
+
+		}
 
 		[Command("respuestaingeniosa"), Description("Tu madre"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "ri" })]
 		public async Task RI(CommandContext ctx)
