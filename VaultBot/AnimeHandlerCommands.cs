@@ -110,14 +110,27 @@ namespace VaultBot
 		}
 
 		[Command("reencode"), Description("Añade un archivo manualmente a la cola\n**Sobreescribe el archivo original**"), Aliases(new[] { "e", "encode", "addqueue" })]
-		public async Task ReEncode(CommandContext ctx, [Description("Ruta completa del archivo a recodificar"), RemainingText] string Full_Path)
+		public async Task ReEncode(CommandContext ctx, [Description("Ruta completa del archivo/carpeta a recodificar"), RemainingText] string Full_Path)
 		{
-			bool isFile = Path.HasExtension(Full_Path);
-			bool isDirectory = Directory.Exists(Full_Path);
+			//Since there is a fair chance that the user can miss that the local system in Vault may be different from the system they are using. We will try our best to fix that and find the proper file
+			string Rectified_Path = Path.GetPathRoot(Full_Path) + @"Vault\" + Full_Path.Substring(Path.GetPathRoot(Full_Path).Length);
 
-			if (isFile) //I'll will work on this later
+			bool isFile = Path.HasExtension(Full_Path) || Path.HasExtension(Rectified_Path);
+			bool isDirectory = Directory.Exists(Full_Path) || Directory.Exists(Rectified_Path);
+			
+
+			if (isFile)
 			{
+				string final_path = "";
+				
 				if (File.Exists(Full_Path))
+				{
+					final_path = Full_Path;
+				} else if (File.Exists(Rectified_Path))
+				{
+					final_path = Rectified_Path;
+				}
+				if (!string.IsNullOrEmpty(final_path))
 				{
 					try
 					{
@@ -130,10 +143,7 @@ namespace VaultBot
 						Anime a = new Anime(Full_Path);
 						Encoder.Instance.AddAnimeToQueue(new Encode(a, DateTime.Now), true, false);
 						ctx.RespondAsync($"Se ha añadido {a.FullFileName} a la cola\nSe recodificara lo antes posible");
-					}
-				} else
-				{
-					ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha encontrado el archivo", "", false, false, "#ff0000"));
+					} 
 				}
 			} else if (isDirectory)
 			{

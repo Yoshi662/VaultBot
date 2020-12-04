@@ -19,7 +19,7 @@ namespace VaultBot
 {
 	public class Program
 	{
-		internal static readonly string version = "2.2.0";
+		internal static readonly string version = "2.2.1";
 		internal static readonly string internalname = "Reencode all the way";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
@@ -52,7 +52,8 @@ namespace VaultBot
 				TokenType = TokenType.Bot,
 
 				AutoReconnect = true,
-				MinimumLogLevel = LogLevel.Debug
+				//HACK please make this configurable in the config file
+				MinimumLogLevel = LogLevel.Information
 			};
 
 			Client = new DiscordClient(cfg);
