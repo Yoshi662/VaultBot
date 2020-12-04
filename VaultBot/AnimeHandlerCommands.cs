@@ -115,39 +115,30 @@ namespace VaultBot
 			//Since there is a fair chance that the user can miss that the local system in Vault may be different from the system they are using. We will try our best to fix that and find the proper file
 			string Rectified_Path = Path.GetPathRoot(Full_Path) + @"Vault\" + Full_Path.Substring(Path.GetPathRoot(Full_Path).Length);
 
-			bool isFile = Path.HasExtension(Full_Path) || Path.HasExtension(Rectified_Path);
+			bool isFile = File.Exists(Full_Path) || File.Exists(Rectified_Path);
 			bool isDirectory = Directory.Exists(Full_Path) || Directory.Exists(Rectified_Path);
-			
+			bool isRectified = File.Exists(Rectified_Path) || Directory.Exists(Rectified_Path);
+
+
 
 			if (isFile)
 			{
-				string final_path = "";
-				
-				if (File.Exists(Full_Path))
+				try
 				{
-					final_path = Full_Path;
-				} else if (File.Exists(Rectified_Path))
-				{
-					final_path = Rectified_Path;
+					ER_Anime e = new ER_Anime(isRectified ? Rectified_Path : Full_Path);
+					Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true, false);
+					ctx.RespondAsync($"Se ha añadido {e.Title} - {e.N_Ep} a la cola\nSe recodificara lo antes posible");
 				}
-				if (!string.IsNullOrEmpty(final_path))
+				catch (ArgumentException)
 				{
-					try
-					{
-						ER_Anime e = new ER_Anime(Full_Path);
-						Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true, false);
-						ctx.RespondAsync($"Se ha añadido {e.Title} - {e.N_Ep} a la cola\nSe recodificara lo antes posible");
-					}
-					catch (ArgumentException)
-					{
-						Anime a = new Anime(Full_Path);
-						Encoder.Instance.AddAnimeToQueue(new Encode(a, DateTime.Now), true, false);
-						ctx.RespondAsync($"Se ha añadido {a.FullFileName} a la cola\nSe recodificara lo antes posible");
-					} 
+					Anime a = new Anime(Full_Path);
+					Encoder.Instance.AddAnimeToQueue(new Encode(a, DateTime.Now), true, false);
+					ctx.RespondAsync($"Se ha añadido {a.FullFileName} a la cola\nSe recodificara lo antes posible");
 				}
+
 			} else if (isDirectory)
 			{
-				string[] files = Directory.GetFiles(Full_Path);
+				string[] files = Directory.GetFiles(isRectified ? Rectified_Path : Full_Path);
 				foreach (string f in files)
 				{
 					if (File.Exists(f))
