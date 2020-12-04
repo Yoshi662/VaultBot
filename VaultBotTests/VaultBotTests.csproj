@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VaultBotTests</RootNamespace>
     <AssemblyName>VaultBotTests</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -66,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VaultBot\VaultBot.csproj">
-      <Project>{9A501E22-9804-4217-97B1-1A943368EE17}</Project>
+      <Project>{9a501e22-9804-4217-97b1-1a943368ee17}</Project>
       <Name>VaultBot</Name>
     </ProjectReference>
   </ItemGroup>

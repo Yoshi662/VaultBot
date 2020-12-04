@@ -19,7 +19,7 @@ namespace VaultBot
 		/// <param name="color">Cadena Hexadecimal para el color del embed</param>
 		/// <param name="footerspam">Habilita el footerSpam "A Yoshi's bot"</param>
 		/// <returns></returns>
-		public static DiscordEmbed QuickEmbed(String titulo = "", string descripcion = "", bool thumbnail = true ,bool footerspam = true, string color = "#2461DC")
+		public static DiscordEmbed QuickEmbed(string titulo = "", string descripcion = "", bool thumbnail = true ,bool footerspam = true, string color = "#2461DC")
 		{
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
 			builder.WithTitle(titulo)
@@ -49,7 +49,7 @@ namespace VaultBot
 			}
 		}
 
-		public static MemoryStream StringToMemoryStream(String input)
+		public static MemoryStream stringToMemoryStream(string input)
 		{
 			return new MemoryStream(Encoding.UTF8.GetBytes(input));
 		}

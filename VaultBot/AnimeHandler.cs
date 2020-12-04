@@ -48,7 +48,7 @@ namespace VaultBot
          */
 
 		//groups: 0(ER_Spam) 1(AnimeName) 2(- Nº EP) 3?(Finale) 4?(V0) 5?(V2) 6(Res) 7?(Multiple Subs) 8?(Extension) 9?(Extension)
-		public AnimeHandler(String AnimePath)
+		public AnimeHandler(string AnimePath)
 		{
 			this.MasterWatcher.Path = AnimePath;
 
@@ -66,10 +66,10 @@ namespace VaultBot
 
 		private async void OnRenamedAsync(object sender, RenamedEventArgs e)
 		{
-			String NewName = e.Name.Split('\\').Last();
-			String NewPath = e.FullPath.Replace(NewName, "");
-			String OldName = e.OldName.Split('\\').Last();
-			String OldPath = e.OldFullPath.Replace(OldName, "");
+			string NewName = e.Name.Split('\\').Last();
+			string NewPath = e.FullPath.Replace(NewName, "");
+			string OldName = e.OldName.Split('\\').Last();
+			string OldPath = e.OldFullPath.Replace(OldName, "");
 
 			bool isER = ER_Anime.TitleRegex.IsMatch(NewName);
 			//On finished download
@@ -119,8 +119,8 @@ namespace VaultBot
 
 		private void OnCreated(object sender, FileSystemEventArgs e)
 		{
-			String Nombre = e.Name.Split('\\').Last();
-			String path = e.FullPath.Replace(Nombre, "");
+			string Nombre = e.Name.Split('\\').Last();
+			string path = e.FullPath.Replace(Nombre, "");
 			bool isER = ER_Anime.TitleRegex.IsMatch(Nombre);
 			if (isER)
 			{
