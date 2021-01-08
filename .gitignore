@@ -342,3 +342,4 @@ ASALocalRun/
 healthchecksdb
 /VaultBot/Encoder.cs
 /VaultBot/ClassDiagram1.cd
+*.json

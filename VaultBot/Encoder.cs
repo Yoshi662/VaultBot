@@ -19,6 +19,7 @@ namespace VaultBot
 		/*TODO Check that everything works as expected (Expand)
 		 *RECAP So please do some testing over the queue.
 		 *RECAP How order and encodedate works altogether and if it is necesary to make a method to order the queue due to Encode date.
+		 *BUG Bot Crashses when is stopped when there is BOTH a preencoded anime and a postencoded anime
 		 */
 		const string QueuePath = ".\\CurrentQueue.json";
 
@@ -66,9 +67,8 @@ namespace VaultBot
 			if (updateMsgQueue) SendUpdateToChannel();
 		}
 
-		private bool CheckIfExists(Anime input)
+		private bool CheckIfExists(Anime input) //TODO verificar que funciona como deberia
 		{
-			//Queue => array (or even list)
 			//If two episodes names AND epNº coincide we return false
 			bool exists = false;
 			Encode[] encs = EncodeQueue.ToArray();
@@ -98,7 +98,6 @@ namespace VaultBot
 					//We remove the duplicates
 					e.Anime = HelperMethods.RemoveDuplicates((ER_Anime)e.Anime);
 				}
-
 
 				//And we encode the anime
 				Encode(e.Anime);
@@ -134,6 +133,11 @@ namespace VaultBot
 				Anime preencode = (Anime)anime.Clone();
 				Anime postencode = (Anime)anime.Clone();
 
+				string AnimeInfo = preencode is ER_Anime ? $"\"{(preencode as ER_Anime).Title} - {(preencode as ER_Anime).N_Ep}\"" : $"\"{preencode.FullFileName}\"";
+
+				Process HandBrakeCLI;
+				bool SkipEncode = false;
+
 				if (anime is ER_Anime)
 				{
 					(preencode as ER_Anime).PreEncode = true;
@@ -142,11 +146,33 @@ namespace VaultBot
 					preencode.FullFileName = "preencode_" + preencode.FullFileName;
 				}
 
+
+
 				//We rename the old file
-				File.Move(anime.FullPath, preencode.FullPath);
+				try
+				{
+					File.Move(anime.FullPath, preencode.FullPath);
+				}
+				//Sometimes it would throw an exception if the bot was closed at the wrong moment. And we have a Preencoded file and a PostEncoded File
+				//This should take care of all possible scenarios (Either Handbrake is still running or not)
+				catch (IOException e)
+				{
+					SkipEncode = true;
+					HandBrakeCLI = Process.GetProcessesByName("HandbrakeCLI").FirstOrDefault();
+					
+					if (HandBrakeCLI is null)
+					{
+						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process found. Skipping Encode");
+					} else {
+						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process found. Waiting for exit");
+						HandBrakeCLI.WaitForExit();
+						Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{AnimeInfo}\" - Has Finished Encoding");
+					}
+				}
+
 
 				//We start encoding
-				Process HandBrakeCLI = new Process();
+				HandBrakeCLI = new Process();
 				HandBrakeCLI.StartInfo = new ProcessStartInfo
 				{
 					FileName = "HandbrakeCLI.exe",
@@ -156,15 +182,14 @@ namespace VaultBot
 					Arguments = $"--preset-import-file \"AnimePreset.json\" -Z \"General Purpose Anime H.265 10-bit\" --input \"{preencode.FullPath}\" --output \"{postencode.FullPath}\""
 				};
 
-				if (anime is ER_Anime)
+				if (!SkipEncode)
 				{
-					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeStart, $"\"{(preencode as ER_Anime).Title} - {(preencode as ER_Anime).N_Ep}\" - Has Started Encoding");
-				} else
-				{
-					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeStart, $"\"{preencode.FullFileName}\" - Has Started Encoding");
+					HandBrakeCLI.Start();
+					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeStart, $"\"{AnimeInfo}\" - Has Started Encoding");
+				} else {
+					Program.Client.Logger.Log(LogLevel.Warning, Events.EncodeStart, $"\"{AnimeInfo}\" - Has Skipped Encoding");
 				}
 
-				HandBrakeCLI.Start();
 				if (SendUpdates && UpdatesChannel != null)
 				{
 					HandBrakeCLI.BeginOutputReadLine();
@@ -182,15 +207,12 @@ namespace VaultBot
 					};
 
 				}
-				HandBrakeCLI.WaitForExit();
-				if (anime is ER_Anime)
-				{
-					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{(preencode as ER_Anime).Title} - {(preencode as ER_Anime).N_Ep}\" - Has Finished Encoding");
-				} else
-				{
-					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{preencode.FullFileName}\" - Has Finished Encoding");
-				}
 
+				if (!SkipEncode)
+				{
+					HandBrakeCLI.WaitForExit();
+					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{AnimeInfo}\" - Has Finished Encoding");
+				}
 				File.Delete(preencode.FullPath);
 			}));
 			th.Start();
@@ -219,7 +241,7 @@ namespace VaultBot
 			if (File.Exists(path) && EncodeQueue.Count == 0)
 			{
 				List<TinyEncode> queue = JsonConvert.DeserializeObject<List<TinyEncode>>(
-				File.ReadAllText(path)
+					File.ReadAllText(path)
 				);
 
 				foreach (var item in queue)
@@ -232,6 +254,7 @@ namespace VaultBot
 					{
 						e = new Encode(new Anime(item.FullPath), item.EncodeDate);
 					}
+
 					AddAnimeToQueue(e, false, false);
 				}
 				Program.Client.Logger.Log(LogLevel.Debug, Events.QueueLoad, "Queue has been loaded from " + QueuePath);
@@ -254,6 +277,7 @@ namespace VaultBot
 			//So if we recieve data we will parse it so it's more readable
 			if (!string.IsNullOrWhiteSpace(data))
 			{
+				string AnimeInfo = encodes[0].Anime is ER_Anime ? $"\"{(encodes[0].Anime as ER_Anime).Title} - {(encodes[0].Anime as ER_Anime).N_Ep}\"" : $"\"{encodes[0].Anime.FullFileName}\"";
 				if (encodes[0].Anime is ER_Anime)
 				{
 					builder.AddField($"{(encodes[0].Anime as ER_Anime).Title} - {(encodes[0].Anime as ER_Anime).N_Ep}", "`" + data.Substring(23) + "`");
@@ -270,14 +294,15 @@ namespace VaultBot
 						i < (EncodeQueue.Count > 24 ? 24 : EncodeQueue.Count); //There is a limit of fields there can be in an embed
 						i++)
 				{
-					if (encodes[i].Anime is ER_Anime)
-					{
-						builder.AddField($"{(encodes[i].Anime as ER_Anime).Title} - {(encodes[i].Anime as ER_Anime).N_Ep}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
-					} else
-					{
-						builder.AddField($"{encodes[i].Anime.FullFileName}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
-					}
+
+					string AnimeInfo = encodes[i].Anime is ER_Anime ? $"\"{(encodes[i].Anime as ER_Anime).Title} - {(encodes[i].Anime as ER_Anime).N_Ep}\"" : $"\"{encodes[i].Anime.FullFileName}\"";
+					builder.AddField($"{AnimeInfo}", $"`Recode planeado para el {encodes[i].EncodeDate:yyyy-MM-dd}`");
+
 				}
+			}
+			if (EncodeQueue.Count > 24)
+			{
+				builder.AddField($"Extras", $"{EncodeQueue.Count - 24} Videos Restantes");
 			}
 
 			//If there is no message we created and we pin it
@@ -291,7 +316,6 @@ namespace VaultBot
 				DiscordMessage msg = await UpdatesChannel.SendMessageAsync(null, false, builder.Build());
 				await msg.PinAsync();
 			}
-
 		}
 	}
 
@@ -305,7 +329,8 @@ namespace VaultBot
 		public int AnimeType { get; set; }
 	}
 
-	public enum AnimeType{
+	public enum AnimeType
+	{
 		Anime,
 		ER_Anime
 	}

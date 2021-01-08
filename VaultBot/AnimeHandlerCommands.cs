@@ -113,13 +113,11 @@ namespace VaultBot
 		public async Task ReEncode(CommandContext ctx, [Description("Ruta completa del archivo/carpeta a recodificar"), RemainingText] string Full_Path)
 		{
 			//Since there is a fair chance that the user can miss that the local system in Vault may be different from the system they are using. We will try our best to fix that and find the proper file
-			string Rectified_Path = Path.GetPathRoot(Full_Path) + @"Vault\" + Full_Path.Substring(Path.GetPathRoot(Full_Path).Length);
+			string Rectified_Path = Path.GetPathRoot(Full_Path) + @"Vault" + Full_Path.Substring(Path.GetPathRoot(Full_Path).Length);
 
 			bool isFile = File.Exists(Full_Path) || File.Exists(Rectified_Path);
 			bool isDirectory = Directory.Exists(Full_Path) || Directory.Exists(Rectified_Path);
 			bool isRectified = File.Exists(Rectified_Path) || Directory.Exists(Rectified_Path);
-
-
 
 			if (isFile)
 			{
