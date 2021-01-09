@@ -19,8 +19,8 @@ namespace VaultBot
 {
 	public class Program
 	{
-		internal static readonly string version = "2.2.3";
-		internal static readonly string internalname = "BugSmashing";
+		internal static readonly string version = "2.2.4";
+		internal static readonly string internalname = "BugSmashing 2";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
 		public static DiscordClient Client { get; set; }

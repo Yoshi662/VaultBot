@@ -64,6 +64,7 @@ namespace VaultBot
 			Task.Delay(-1);
 		}
 
+		//HACK Improve the logic on this command
 		private async void OnRenamedAsync(object sender, RenamedEventArgs e)
 		{
 			string NewName = e.Name.Split('\\').Last();
@@ -79,11 +80,12 @@ namespace VaultBot
 				ER_Anime OldAnime = new ER_Anime(OldPath + OldName);
 				if (OldAnime.IsDownloading && !Newanime.IsDownloading) //On Sucessful Download
 				{
+					//We start the encode
 					if (File.Exists(Newanime.FullPath))
 					{
 						DateTime startEncodeDate = DateTime.Now.Add(delay);
 						Encoder.Instance.AddAnimeToQueue(new Encode(Newanime, startEncodeDate));
-					} 
+					}
 
 
 					//Finally we send the update to the server
@@ -106,29 +108,15 @@ namespace VaultBot
 
 					Program.Client.Logger.Log(LogLevel.Information, Events.AnimePublished, $"\"{Newanime.FullFileName}\" Has been downloaded");
 					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(titleOutput, descOutput));
-
-				} else //We just publish the anime
-				{
-					if (Path.GetExtension(OldPath) == ".!qB" && Path.GetExtension(NewPath) != ".!qB")
-					{
-						await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(NewName, "Ahora disponible en el servidor"));
-					}
 				}
-			}
-		}
-
-		private void OnCreated(object sender, FileSystemEventArgs e)
-		{
-			string Nombre = e.Name.Split('\\').Last();
-			string path = e.FullPath.Replace(Nombre, "");
-			bool isER = ER_Anime.TitleRegex.IsMatch(Nombre);
-			if (isER)
+			} else //We just publish the anime
 			{
-				ER_Anime anime = new ER_Anime(Nombre)
+				if (Path.GetExtension(OldName) == ".!qB" && Path.GetExtension(NewName) != ".!qB")
 				{
-					PreEncode = true
-				};
-				File.Move(path + Nombre, path + anime.FullPath);
+					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(NewName, "Ahora disponible en el servidor"));
+					DateTime startEncodeDate = DateTime.Now.Add(delay);
+					Encoder.Instance.AddAnimeToQueue(new Encode(new Anime(NewPath), startEncodeDate));
+				}
 			}
 		}
 	}

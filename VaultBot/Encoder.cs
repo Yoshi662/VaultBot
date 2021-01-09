@@ -190,7 +190,7 @@ namespace VaultBot
 					Program.Client.Logger.Log(LogLevel.Warning, Events.EncodeStart, $"\"{AnimeInfo}\" - Has Skipped Encoding");
 				}
 
-				if (SendUpdates && UpdatesChannel != null)
+				if ((SendUpdates && UpdatesChannel != null))
 				{
 					HandBrakeCLI.BeginOutputReadLine();
 					DateTime lastedit = DateTime.Now;
