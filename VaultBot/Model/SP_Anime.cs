@@ -55,8 +55,8 @@ namespace VaultBot
 		public override string ToString()
 		{
 			if (Title is null && N_Ep is null) return base.FullFileName;
-			
-			return $"[SubsPlease] {Title} - {N_Ep}{ImprovedVersion} (1080p) {Hash}{(PreEncode ? "[pre-enc]" : "")}{Extension}{(IsDownloading ? ".!qB" : "")}";
+
+			return $"[SubsPlease] {Title} - {N_Ep}{ImprovedVersion} (1080p) {Hash}{(PreEncode ? "[pre-enc]" : "")}{Extension}{(IsDownloading ? dw_ext : "")}";
 		}
 		/// <summary>
 		/// It checks if Title AND Episode number Coincides
@@ -66,5 +66,10 @@ namespace VaultBot
 		{
 			return input.Title == this.Title && input.N_Ep == this.N_Ep;
 		}
+
+		/// <summary>
+		/// Gets the title and number of episode in a formatted way
+		/// </summary>
+		public override string GetInfo() => Title + " - " + N_Ep;
 	}
 }

@@ -17,12 +17,21 @@ using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
-/*TODO Add Support for SubsPlease
-*/
+	//TODO Add Support for SubsPlease
+	//TODO change all ".!qB" for a const in Model.*
+	//TODO Add Get_Info() in  Model.*
+	//TODO Make the Queue System Monkey-Proof
+
+	/*RECAP Estoy implementando que se pueda añadir subtitulos de SubsPlease al bot de forma mas o menos sencilla.
+	Hace falta modificar bastante del codigo fuente y la mayoria de cambios tienen un TODO asi que puedes mirar la lista de tareas y currar a partir de ahi
+	HACE FALTA TESTEAR TODO DE NUEVO. Ya que hay cosas que dan fallos
+	De momento mira que Currentqueue se guarde bien. O que la cola se guarde bien.
+	Verifica que Anime.GetType().Name Da lo que deberia
+	 */
 	public class Program
 	{
-		internal static readonly string version = "2.2.4";
-		internal static readonly string internalname = "BugSmashing 2";
+		internal static readonly string version = "2.3.0";
+		internal static readonly string internalname = "Subs Please!!!";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
 		public static DiscordClient Client { get; set; }

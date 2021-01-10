@@ -94,7 +94,7 @@ namespace VaultBot
 			await ctx.RespondAsync(null, false, QuickEmbed(texto, color));
 		}
 
-		[Command("version"), Description("Muestra la version del bot")]
+		[Command("version"), Description("Muestra la version del bot"), Aliases(new[] { "v" })]
 		public async Task Version(CommandContext ctx)
 		{
 			DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder();

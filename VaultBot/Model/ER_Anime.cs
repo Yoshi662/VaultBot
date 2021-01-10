@@ -36,6 +36,8 @@ namespace VaultBot
 		public bool IsV2 { get; set; }
 		public bool PreEncode { get; set; }
 
+		public override bool IsDownloading { get; set; }
+
 
 		public ER_Anime(string FullPath) : base(FullPath)
 		{
@@ -59,7 +61,7 @@ namespace VaultBot
 		public override string ToString()
 		{
 			if (Title is null && N_Ep is null) return base.FullFileName;
-			
+
 
 			string output = "";
 			output += $"[Erai-raws] {Title} - {N_Ep} ";
@@ -70,15 +72,21 @@ namespace VaultBot
 			if (PreEncode) output += @"[pre-enc]";
 			if (HasMulti) output += @"[Multiple Subtitle]";
 			output += Extension;
-			if (IsDownloading) output += @".!qB";
+			if (IsDownloading) output += dw_ext;
 			return output;
 		}
 		/// <summary>
 		/// It checks if Title AND Episode number Coincides
 		/// </summary>
 		/// <param name="input">The anime to compare</param>
-		public bool Coincide(ER_Anime input){
+		public bool Coincide(ER_Anime input)
+		{
 			return input.Title == this.Title && input.N_Ep == this.N_Ep;
 		}
+
+		/// <summary>
+		/// Gets the title and number of episode in a formatted way
+		/// </summary>
+		public override string GetInfo() => Title + " - " + N_Ep;
 	}
 }
