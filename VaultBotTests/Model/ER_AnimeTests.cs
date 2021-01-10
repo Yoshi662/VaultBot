@@ -63,7 +63,6 @@ namespace VaultBot.Tests
 			}
 			Directory.Delete(testingMainPath, true);
 
-			//Test about if it does changes properly
 
 			//[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][1080p][Multiple Subtitle].mkv
 			anime = new ER_Anime(@"D:\Temp\VaultBotUnitTesting\[Erai-raws] The Legend Of Unit Testing - 03 [1080p].mkv");

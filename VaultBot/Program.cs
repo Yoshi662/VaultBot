@@ -17,6 +17,8 @@ using DSharpPlus.CommandsNext.Exceptions;
 
 namespace VaultBot
 {
+/*TODO Add Support for SubsPlease
+*/
 	public class Program
 	{
 		internal static readonly string version = "2.2.4";
@@ -52,8 +54,7 @@ namespace VaultBot
 				TokenType = TokenType.Bot,
 
 				AutoReconnect = true,
-				//HACK please make this configurable in the config file
-				MinimumLogLevel = LogLevel.Information
+				MinimumLogLevel = cfgjson.LogLevel
 			};
 
 			Client = new DiscordClient(cfg);
@@ -70,7 +71,7 @@ namespace VaultBot
 
 			commands = Client.UseCommandsNext(new CommandsNextConfiguration
 			{
-				StringPrefixes = new[] { cfgjson.CommandPrefix }, //How the fuck this works?
+				StringPrefixes = new[] { cfgjson.CommandPrefix },
 			});
 
 			commands.RegisterCommands<AnimeHandlerCommands>();
@@ -155,6 +156,9 @@ namespace VaultBot
 
 		[JsonProperty("animePath")]
 		public string AnimePath { get; private set; }
+
+		[JsonProperty("loglevel")]
+		public LogLevel LogLevel { get; private set; }
 
 	}
 }

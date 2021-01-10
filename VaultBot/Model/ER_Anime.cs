@@ -36,11 +36,10 @@ namespace VaultBot
 		public bool IsV2 { get; set; }
 		public bool PreEncode { get; set; }
 
-		
 
 		public ER_Anime(string FullPath) : base(FullPath)
 		{
-			if (!TitleRegex.IsMatch(FullPath))
+			if (!TitleRegex.IsMatch(FullFileName))
 			{
 				throw new ArgumentException("The title sent does not match the Regex");
 			}
@@ -59,6 +58,9 @@ namespace VaultBot
 		}
 		public override string ToString()
 		{
+			if (Title is null && N_Ep is null) return base.FullFileName;
+			
+
 			string output = "";
 			output += $"[Erai-raws] {Title} - {N_Ep} ";
 			if (IsFinale) output += @"END ";

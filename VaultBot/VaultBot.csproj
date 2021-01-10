@@ -148,14 +148,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Anime.cs" />
+    <Compile Include="Model\Anime.cs" />
     <Compile Include="AnimeHandler.cs" />
     <Compile Include="AnimeHandlerCommands.cs" />
-    <Compile Include="Encode.cs" />
-    <Compile Include="Encoder.cs" />
-    <Compile Include="ER_Anime.cs" />
+    <Compile Include="Encoder\Encode.cs" />
+    <Compile Include="Encoder\Encoder.cs" />
+    <Compile Include="Model\ER_Anime.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="HelperMethods.cs" />
+    <Compile Include="Model\SP_Anime.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
