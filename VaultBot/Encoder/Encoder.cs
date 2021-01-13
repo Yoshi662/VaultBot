@@ -95,7 +95,14 @@ namespace VaultBot
 				}
 
 				//And we encode the anime
-				Encode(e.Anime);
+				try
+				{
+					Encode(e.Anime);
+				}
+				catch (FileNotFoundException ex)
+				{
+					Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Se ha intentado recodificar {e.Anime.GetInfo()}, pero no se ha encontrado");
+				}
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
 				EncodeQueue.RemoveFirst();
@@ -122,6 +129,11 @@ namespace VaultBot
 
 		private void Encode(Anime anime)
 		{
+			if (!anime.Exists())
+			{
+				throw new FileNotFoundException($"Se ha intentado Recodificar {anime.GetInfo()} pero no se ha encontrado", anime.FullPath);
+			}	
+
 			Thread th = new Thread(new ThreadStart(() =>
 			{
 				//We generate the preencode and postenccode names

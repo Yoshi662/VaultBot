@@ -14,23 +14,16 @@ using Microsoft.Extensions.Logging;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext.Exceptions;
+using System.Linq;
 
 namespace VaultBot
 {
-	//TODO Add Support for SubsPlease
-	//TODO change all ".!qB" for a const in Model.*
-	//TODO Add Get_Info() in  Model.*
 	//TODO Make the Queue System Monkey-Proof
-
-	/*RECAP Estoy implementando que se pueda añadir subtitulos de SubsPlease al bot de forma mas o menos sencilla.
-	Hace falta modificar bastante del codigo fuente y la mayoria de cambios tienen un TODO asi que puedes mirar la lista de tareas y currar a partir de ahi
-	HACE FALTA TESTEAR TODO DE NUEVO. Ya que hay cosas que dan fallos
-	De momento mira que Currentqueue se guarde bien. O que la cola se guarde bien.
-	Verifica que Anime.GetType().Name Da lo que deberia
-	 */
+	//BUG Vaultbot deletes files (pre and post encode) at recodification stage I don't know if this is because I'm on my test enviroment but this should be noted
+	//TODO Test DeleteQueue, DeleteElement, EncodeQueue, EncodeElement Commands
 	public class Program
 	{
-		internal static readonly string version = "2.3.0";
+		internal static readonly string version = "2.3.1b";
 		internal static readonly string internalname = "Subs Please!!!";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
@@ -146,6 +139,27 @@ namespace VaultBot
 				};
 				await e.Context.RespondAsync("", embed: embed);
 			}
+#if DEBUG
+else
+			{
+				//Programar sin dormir es !bien
+				DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+				builder
+					.WithTitle(":warning: Something Happened :warning:")
+					.WithColor(new DiscordColor("#FF0000")
+					);
+
+				if (e.Exception.HelpLink != null) builder.WithUrl(e.Exception.HelpLink);
+				if (e.Exception.Message != null) builder.AddField("Mensaje", e.Exception.Message);
+				if (e.Command?.QualifiedName != null) builder.AddField("Commando", e.Command?.QualifiedName);
+				if (e.Exception.GetType().Name != null) builder.AddField("Type", e.Exception.GetType().Name);
+				if (e.Exception.StackTrace != null) builder.AddField("StackTrace", (e.Exception.StackTrace.Length > 1000 ? e.Exception.StackTrace.Substring(0,1000) : e.Exception.StackTrace));
+				builder.WithFooter("For Debug purposes only");
+				builder.WithTimestamp(DateTime.Now);
+
+				e.Context.RespondAsync(embed: builder.Build());
+			}
+#endif
 		}
 	}
 

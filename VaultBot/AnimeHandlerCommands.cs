@@ -25,20 +25,72 @@ namespace VaultBot
 		public async Task test(CommandContext ctx)
 		{ }*/
 		[Command("updatequeue"), RequireOwner(), Hidden(), Aliases(new[] { "uq" })] //,
-		public async Task test(CommandContext ctx)
+		public async Task updatequeue(CommandContext ctx)
 		{
 			Encoder.Instance.SendUpdateToChannel();
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
 
-		[Command("deletequeue"), RequireOwner(), Hidden(), Aliases(new[] { "dq" })] //,
+		[Command("deletequeue"), RequireOwner(), Aliases(new[] { "dq" }), Description("Borra todos los elementos en la cola")] //,
 		public async Task deletequeue(CommandContext ctx)
 		{
-			Encoder.Instance.EncodeQueue.Clear();
-			Encoder.Instance.SaveCurentQueueToFile();
-			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
+			DiscordMessage msg = await ctx.RespondAsync("Estas seguro que quieres eliminar toda la lista de recodes?");
+			bool confirmation = await Confirm(msg, ctx);
+			if (confirmation)
+			{
+				Encoder.Instance.EncodeQueue.Clear();
+				Encoder.Instance.SaveCurentQueueToFile();
+				Encoder.Instance.SendUpdateToChannel();
+				msg.ModifyAsync("Se han borrado todos los elementos");
+				msg.DeleteAllReactionsAsync();
+				
+			} else
+			{
+				msg.ModifyAsync("Operacion cancelada");
+				msg.DeleteAllReactionsAsync();
+			}
 		}
 
+		[Command("deleteelement"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "de" }), Description("Borra un elemento de la cola")]
+		public async Task deleteelement(CommandContext ctx, [Description("Numero de elemento que borrar")] int nqueue)
+		{
+			Encode e = Encoder.Instance.EncodeQueue.ToArray()[nqueue];
+			DiscordMessage msg = await ctx.RespondAsync($"Se borrara \"{e.Anime.GetInfo()}\"\nEstas de acuerdo?");
+			bool confirmation = await Confirm(msg, ctx);
+			if (confirmation)
+			{
+				Encoder.Instance.EncodeQueue.Remove(e);
+				Encoder.Instance.SaveCurentQueueToFile();
+				Encoder.Instance.SendUpdateToChannel();
+				msg.DeleteAllReactionsAsync();
+				msg.ModifyAsync($"Se ha borrado \"{e.Anime.GetInfo()}\" de la lista");
+
+			} else
+			{
+				msg.DeleteAllReactionsAsync();
+				msg.ModifyAsync($"Operacion cancelada");
+			}
+		}
+		[Command("encodequeue"), Aliases(new[] { "eq" }), Description("recodifica todos los elementos de la cola")]
+		public async Task encodequeue(CommandContext ctx)
+		{
+			foreach (Encode encode in Encoder.Instance.EncodeQueue)
+			{
+				encode.EncodeDate = DateTime.MinValue;
+			}
+			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
+
+		}
+
+		[Command("encodeelement"), Aliases(new[] { "ee" }), Description("recodifica un elemento de la cola")]
+		public async Task encodeelement(CommandContext ctx, int nelem)
+		{
+			Encode e = Encoder.Instance.EncodeQueue.ToArray()[nelem];
+			Encoder.Instance.EncodeQueue.Remove(e);
+			Encoder.Instance.AddAnimeToQueue(e, true, true);
+			Encoder.Instance.SaveCurentQueueToFile();
+			ctx.RespondAsync($"Se recodificara {e.Anime.GetInfo()} inmediatamente");
+		}
 		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Hidden()]
 		public async Task CleanDuplicates(CommandContext ctx, [RemainingText(), Description("Ruta completa a la carpeta")] string rutacompleta)
 		{
@@ -208,6 +260,36 @@ namespace VaultBot
 					   );
 			DiscordEmbed embed = builder.Build();
 			return embed;
+		}
+		public async Task<bool> Confirm(DiscordMessage msg, CommandContext ctx)
+		{
+			// first retrieve the interactivity module from the client
+			var interactivity = ctx.Client.GetInteractivity();
+
+			// specify the emoji
+			DiscordEmoji[] EmojiOptions = {
+				DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"),
+				DiscordEmoji.FromName(ctx.Client, ":x:")
+			};
+
+
+			foreach (DiscordEmoji e in EmojiOptions)
+			{
+				msg.CreateReactionAsync(e);
+				Thread.Sleep(350);
+			}
+
+			// wait for a reaction
+			var em = await interactivity.WaitForReactionAsync(xe => EmojiOptions.Contains(xe.Emoji), ctx.User, TimeSpan.FromSeconds(15));
+
+			if (!em.TimedOut)
+			{
+				return em.Result.Emoji == EmojiOptions[0];
+			} else
+			{
+				await msg.DeleteAllReactionsAsync();
+				return false;
+			}
 		}
 		#endregion
 	}

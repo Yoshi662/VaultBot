@@ -14,6 +14,8 @@ namespace VaultBot
 		/// </summary>
 		public static EventId EncodeStart { get; } = new EventId(201, "ENCODER_STR");
 		public static EventId EncodeEnd { get; } = new EventId(202, "ENCODER_END");
+		public static EventId EncodeError { get; } = new EventId(203, "ENCODER_ERROR");
+
 		/// <summary>
 		/// Default Event for Queue Related Events
 		/// </summary

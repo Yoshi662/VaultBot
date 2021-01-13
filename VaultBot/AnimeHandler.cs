@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace VaultBot
 {
-	//BUG No guarda bien el nombre del archivo cuando NO es un archivo de Erai, "Guarda la carpeta"
 	public class AnimeHandler
 	{
 
@@ -100,7 +99,7 @@ namespace VaultBot
 
 				} else //We just publish the anime
 				{
-					Anime a = new Anime(NewPath + NewName); //TODO CHECK THIS LINE (We might need to add a + "//" + in the middle) //a
+					Anime a = new Anime(NewPath + NewName); //a
 					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
 					Encoder.Instance.AddAnimeToQueue(new Encode(a, startEncodeDate));
 				}
