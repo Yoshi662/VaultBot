@@ -101,14 +101,16 @@ namespace VaultBot
 			MatchCollection files = Regex.Matches(text, "\".*\"");
 			foreach (Match item in files)
 			{
-				Encode e = new Encode(item.Value, DateTime.Now);
+				String path = item.Value.Substring(1, item.Value.Length - 2); //We remove the first and last character
+				Encode e = new Encode(path, DateTime.Now);
 				if (e.Anime.Exists())
 				{
-					Encoder.Instance.AddAnimeToQueue(e);
+					Encoder.Instance.AddAnimeToQueue(e, false, false);
 					cont++;
 				}
 			}
 			await ctx.RespondAsync(null, false, HelperMethods.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
+			Encoder.Instance.SendUpdateToChannel();
 		}
 
 

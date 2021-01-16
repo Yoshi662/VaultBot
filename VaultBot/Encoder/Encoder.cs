@@ -106,6 +106,7 @@ namespace VaultBot
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
 
+
 				EncodeQueue.Remove(e);
 				SaveCurentQueueToFile(QueuePath);
 				SendUpdateToChannel();
@@ -189,7 +190,7 @@ namespace VaultBot
 					Program.Client.Logger.Log(LogLevel.Warning, Events.EncodeStart, $"\"{anime.GetInfo()}\" - Has Skipped Encoding");
 				}
 
-				if ((SendUpdates && UpdatesChannel != null))
+				if ((SendUpdates && UpdatesChannel != null) && !SkipEncode)
 				{
 					HandBrakeCLI.BeginOutputReadLine();
 					DateTime lastedit = DateTime.Now;
@@ -243,7 +244,7 @@ namespace VaultBot
 					File.ReadAllText(path)
 				);
 
-				foreach (var item in queue)
+				foreach (TinyEncode item in queue)
 				{
 					AddAnimeToQueue(new Encode(item.FullPath, item.EncodeDate), false, false);
 				}

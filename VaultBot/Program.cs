@@ -19,11 +19,10 @@ using System.Linq;
 namespace VaultBot
 {
 	//TODO Make the Queue System Monkey-Proof
-	//TODO Test DeleteQueue, DeleteElement, EncodeQueue, EncodeElement Commands
 
 	public class Program
 	{
-		internal static readonly string version = "2.3.1b";
+		internal static readonly string version = "2.4.0";
 		internal static readonly string internalname = "Subs Please!!!";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
