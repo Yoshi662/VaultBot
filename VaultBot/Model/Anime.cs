@@ -12,6 +12,9 @@ namespace VaultBot
 	public class Anime : ICloneable
 	{
 		public const string dw_ext = ".!qB";
+		public const string preEncodePrefix = "preencode_";
+
+		private string _fullPath;
 
 		/// <summary>
 		/// It gets the full Absolute path to the EP
@@ -22,7 +25,7 @@ namespace VaultBot
 			get { return _fullPath; }
 			set { _fullPath = value; }
 		}
-		private string _fullPath;
+		
 
 		/// <summary>
 		/// It gets the File Name
@@ -51,22 +54,40 @@ namespace VaultBot
 			get { return Path.GetExtension(_fullPath); }
 			set { _fullPath = Path.ChangeExtension(_fullPath, value); }
 		}
+
 		/// <summary>
 		/// This Only checks if it has the .!Qb Extension
 		/// </summary>
-
 		public virtual bool IsDownloading
 		{
 			get { return Path.GetExtension(_fullPath).Equals(dw_ext); }
 			set
 			{
-				if (value && !_fullPath.Contains(dw_ext))
+				bool IsAlreadydownloading = _fullPath.Contains(dw_ext);
+				if (value && !IsAlreadydownloading)
 				{
 					_fullPath += dw_ext;
 				}
-				if (!value && _fullPath.Contains(dw_ext))
+				if (!value && IsAlreadydownloading)
 				{
 					_fullPath.Remove(_fullPath.IndexOf(dw_ext), dw_ext.Length);
+				}
+			}
+		}
+
+		public virtual bool PreEncode
+		{
+			get { return FullFileName.StartsWith(preEncodePrefix);  }
+			set
+			{
+			bool IsAlreadyaPreEncode = FullFileName.StartsWith(preEncodePrefix);
+				if (value && !IsAlreadyaPreEncode)
+				{
+					FullFileName = preEncodePrefix + FullFileName;
+				}
+				if (!value && IsAlreadyaPreEncode)
+				{
+					FullFileName.Remove(_fullPath.IndexOf(preEncodePrefix), preEncodePrefix.Length);
 				}
 			}
 		}

@@ -34,7 +34,7 @@ namespace VaultBot
 		public bool IsFinale { get; set; }
 		public bool IsV0 { get; set; }
 		public bool IsV2 { get; set; }
-		public bool PreEncode { get; set; }
+		public override bool PreEncode { get; set; }
 
 		public override bool IsDownloading { get; set; }
 

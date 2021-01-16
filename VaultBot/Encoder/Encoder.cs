@@ -101,11 +101,12 @@ namespace VaultBot
 				}
 				catch (FileNotFoundException ex)
 				{
-					Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Se ha intentado recodificar {e.Anime.GetInfo()}, pero no se ha encontrado");
+					Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Tried to Encode \"{e.Anime.GetInfo()}\" but it was not found");
 				}
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
-				EncodeQueue.RemoveFirst();
+
+				EncodeQueue.Remove(e);
 				SaveCurentQueueToFile(QueuePath);
 				SendUpdateToChannel();
 			}
@@ -139,25 +140,10 @@ namespace VaultBot
 				//We generate the preencode and postenccode names
 				Anime preencode = (Anime)anime.Clone();
 				Anime postencode = (Anime)anime.Clone();
+				preencode.PreEncode = true;
 
 				Process HandBrakeCLI;
 				bool SkipEncode = false;
-
-				AnimeType animeType;
-				switch (anime.GetType().Name)
-				{
-					case "Anime":
-						animeType = AnimeType.Anime;
-						break;
-					case "ER_Anime":
-						animeType = AnimeType.ER_Anime;
-						break;
-					case "SP_Anime":
-						animeType = AnimeType.SP_Anime;
-						break;
-				}
-
-
 
 				//We rename the old file
 				try
@@ -173,7 +159,7 @@ namespace VaultBot
 
 					if (HandBrakeCLI is null)
 					{
-						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process found. Skipping Encode");
+						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process not found. Skipping Encode");
 					} else
 					{
 						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process found. Waiting for exit");
@@ -237,29 +223,11 @@ namespace VaultBot
 			List<TinyEncode> Queue = new List<TinyEncode>();
 			foreach (var item in EncodeQueue)
 			{
-				AnimeType animeType;
-				switch (item.Anime.GetType().Name)
-				{
-					case "Anime":
-						animeType = AnimeType.Anime;
-						break;
-					case "ER_Anime":
-						animeType = AnimeType.ER_Anime;
-						break;
-					case "SP_Anime":
-						animeType = AnimeType.SP_Anime;
-						break;
-					default:
-						animeType = AnimeType.Anime;
-						throw new ArgumentOutOfRangeException($"{item.Anime.GetType().Name} - {item.Anime.GetInfo()}", "Uno de los items de la cola no es de ningun tipo Anime o Tipo heredado");
-						break;
-				}
-
 				Queue.Add(new TinyEncode
 				{
 					FullPath = item.Anime.FullPath,
 					EncodeDate = item.EncodeDate,
-					AnimeType = (int)animeType
+					AnimeType = (int)HelperMethods.GetAnimeType(item.Anime)
 				});
 			}
 			File.WriteAllText(QueuePath, JsonConvert.SerializeObject(Queue, Formatting.Indented));
@@ -277,19 +245,7 @@ namespace VaultBot
 
 				foreach (var item in queue)
 				{
-					Encode e;
-					if (item.AnimeType == (int)AnimeType.ER_Anime)
-					{
-						e = new Encode(new ER_Anime(item.FullPath), item.EncodeDate);
-					} else if (item.AnimeType == (int)AnimeType.SP_Anime)
-					{
-						e = new Encode(new SP_Anime(item.FullPath), item.EncodeDate);
-					} else
-					{
-						e = new Encode(new Anime(item.FullPath), item.EncodeDate);
-					}
-
-					AddAnimeToQueue(e, false, false);
+					AddAnimeToQueue(new Encode(item.FullPath, item.EncodeDate), false, false);
 				}
 				Program.Client.Logger.Log(LogLevel.Debug, Events.QueueLoad, "Queue has been loaded from " + QueuePath);
 			}

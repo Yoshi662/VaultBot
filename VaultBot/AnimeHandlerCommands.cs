@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -43,7 +44,7 @@ namespace VaultBot
 				Encoder.Instance.SendUpdateToChannel();
 				msg.ModifyAsync("Se han borrado todos los elementos");
 				msg.DeleteAllReactionsAsync();
-				
+
 			} else
 			{
 				msg.ModifyAsync("Operacion cancelada");
@@ -82,15 +83,35 @@ namespace VaultBot
 
 		}
 
-		[Command("encodeelement"), Aliases(new[] { "ee" }), Description("recodifica un elemento de la cola")]
+		[Command("encodeelement"), Aliases(new[] { "ee" }), Description("recodifica un elemento de la cola lo antes posible")]
 		public async Task encodeelement(CommandContext ctx, int nelem)
 		{
 			Encode e = Encoder.Instance.EncodeQueue.ToArray()[nelem];
+			e.EncodeDate = DateTime.MinValue;
 			Encoder.Instance.EncodeQueue.Remove(e);
 			Encoder.Instance.AddAnimeToQueue(e, true, true);
 			Encoder.Instance.SaveCurentQueueToFile();
 			ctx.RespondAsync($"Se recodificara {e.Anime.GetInfo()} inmediatamente");
 		}
+
+		[Command("encodebatch"),Hidden(), Aliases(new[] { "eb" }), Description("Adds a couple of links to the encode queue (Some formatting required)")]
+		public async Task encodebatch(CommandContext ctx, [RemainingText] string text)
+		{
+			int cont = 0;
+			MatchCollection files = Regex.Matches(text, "\".*\"");
+			foreach (Match item in files)
+			{
+				Encode e = new Encode(item.Value, DateTime.Now);
+				if (e.Anime.Exists())
+				{
+					Encoder.Instance.AddAnimeToQueue(e);
+					cont++;
+				}
+			}
+			await ctx.RespondAsync(null, false, HelperMethods.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
+		}
+
+
 		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Hidden()]
 		public async Task CleanDuplicates(CommandContext ctx, [RemainingText(), Description("Ruta completa a la carpeta")] string rutacompleta)
 		{
@@ -173,37 +194,16 @@ namespace VaultBot
 
 			if (isFile)
 			{
-				try
-				{
-					ER_Anime e = new ER_Anime(isRectified ? Rectified_Path : Full_Path);
-					Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true, false);
-					ctx.RespondAsync($"Se ha añadido {e.Title} - {e.N_Ep} a la cola\nSe recodificara lo antes posible");
-				}
-				catch (ArgumentException)
-				{
-					Anime a = new Anime(Full_Path);
-					Encoder.Instance.AddAnimeToQueue(new Encode(a, DateTime.Now), true, false);
-					ctx.RespondAsync($"Se ha añadido {a.FullFileName} a la cola\nSe recodificara lo antes posible");
-				}
+				Encode e = new Encode(isRectified ? Rectified_Path : Full_Path, DateTime.Now);
+				Encoder.Instance.AddAnimeToQueue(e, true, false);
+				ctx.RespondAsync($"Se ha añadido {e.Anime.GetInfo()} a la cola\nSe recodificara lo antes posible");
 
 			} else if (isDirectory)
 			{
 				string[] files = Directory.GetFiles(isRectified ? Rectified_Path : Full_Path);
 				foreach (string f in files)
 				{
-					if (File.Exists(f))
-					{
-						try
-						{
-							ER_Anime e = new ER_Anime(f);
-							Encoder.Instance.AddAnimeToQueue(new Encode(e, DateTime.Now), true, false);
-						}
-						catch (ArgumentException)
-						{
-							Anime a = new Anime(f);
-							Encoder.Instance.AddAnimeToQueue(new Encode(a, DateTime.Now), true, false);
-						}
-					}
+					Encoder.Instance.AddAnimeToQueue(new Encode(f, DateTime.Now), true, false);
 				}
 				await ctx.RespondAsync(null, false, HelperMethods.QuickEmbed($"{files.Length} Videos Añadidos a la cola", "", false, false));
 			} else

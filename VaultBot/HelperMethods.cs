@@ -19,7 +19,7 @@ namespace VaultBot
 		/// <param name="color">Cadena Hexadecimal para el color del embed</param>
 		/// <param name="footerspam">Habilita el footerSpam "A Yoshi's bot"</param>
 		/// <returns></returns>
-		public static DiscordEmbed QuickEmbed(string titulo = "", string descripcion = "", bool thumbnail = true ,bool footerspam = true, string color = "#2461DC")
+		public static DiscordEmbed QuickEmbed(string titulo = "", string descripcion = "", bool thumbnail = true, bool footerspam = true, string color = "#2461DC")
 		{
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
 			builder.WithTitle(titulo)
@@ -28,11 +28,11 @@ namespace VaultBot
 			if (footerspam)
 			{
 				builder.WithFooter(
-				"A Yoshi's Bot",
-				"https://i.imgur.com/rT9YocG.jpg"
+					"A Yoshi's Bot",
+					"https://i.imgur.com/rT9YocG.jpg"
 				);
 			}
-			if(thumbnail) builder.WithThumbnail(@"https://i.imgur.com/DxT09uJ.png");
+			if (thumbnail) builder.WithThumbnail(@"https://i.imgur.com/DxT09uJ.png");
 			return builder.Build();
 		}
 
@@ -101,6 +101,34 @@ namespace VaultBot
 				File.Move(Proposal.FullPath, Standard.FullPath);
 			}
 			return Proposal;
+		}
+
+		public static AnimeType GetAnimeType(Anime a)
+		{
+			switch (a.GetType().Name)
+			{
+				case "Anime":
+					return AnimeType.Anime;
+				case "ER_Anime":
+					return AnimeType.ER_Anime;
+				case "SP_Anime":
+					return AnimeType.SP_Anime;
+				default:
+					throw new ArgumentOutOfRangeException($"{a.GetType().Name} - {a.GetInfo()}", "Uno de los items de la cola no es de ningun tipo Anime o Tipo heredado");
+			}
+		}
+
+		public static AnimeType GetAnimeType(String fullpath)
+		{
+			if (ER_Anime.TitleRegex.IsMatch(fullpath))
+			{
+				return AnimeType.ER_Anime;
+			} else if (SP_Anime.TitleRegex.IsMatch(fullpath))
+			{
+				return AnimeType.SP_Anime;
+			} else {
+				return AnimeType.Anime;
+			}
 		}
 	}
 }

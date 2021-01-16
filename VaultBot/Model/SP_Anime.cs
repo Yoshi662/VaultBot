@@ -31,7 +31,7 @@ namespace VaultBot
 		public override string FullFileName { get => this.ToString(); }
 		public string Title { get; set; }
 		public string N_Ep { get; set; }
-		public bool PreEncode { get; set; }
+		public override bool PreEncode { get; set; }
 		public string ImprovedVersion { get; set; }
 		public string Hash { get; set; }
 
