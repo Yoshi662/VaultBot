@@ -40,8 +40,15 @@ namespace VaultBot
 		{
 			EncodeQueue = new LinkedList<Encode>();
 		}
-
-		public void AddAnimeToQueue(Encode e, bool priority = false, bool updateMsgQueue = true) //E
+		/// <summary>
+		/// Adds a new <see cref="VaultBot.Encode"/> to the <see cref="EncodeQueue"/>.
+		/// </summary>
+		/// <param name="e">The <see cref="VaultBot.Encode"/> to add.</param>
+		/// <param name="priority">Adds the <see cref="VaultBot.Encode"/> at the beggining of the <see cref="EncodeQueue"/>.</param>
+		/// <param name="updateMsgQueue">Updates the message sent in discord.</param>
+		/// <param name="SaveUpdateToFile">Updates the current <see cref="EncodeQueue"/> save file.</param>
+		/// <param name=""></param>
+		public void AddAnimeToQueue(Encode e, bool priority = false, bool updateMsgQueue = true, bool SaveUpdateToFile = true) //E
 		{
 			//We Add the anime to the queue.
 			if (!CheckIfExists(e.Anime))
@@ -55,7 +62,10 @@ namespace VaultBot
 				{
 					EncodeQueue.AddLast(e);
 				}
-				SaveCurentQueueToFile(QueuePath);
+				if (SaveUpdateToFile)
+				{
+					SaveCurentQueueToFile(QueuePath);
+				}
 				if (EncodeQueue.Count == 1)
 				{
 					Thread th = new Thread(new ThreadStart(() => { EncodeLoop(); }));
@@ -255,7 +265,7 @@ namespace VaultBot
 
 				foreach (TinyEncode item in queue)
 				{
-					AddAnimeToQueue(new Encode(item.FullPath, item.EncodeDate), false, false);
+					AddAnimeToQueue(new Encode(item.FullPath, item.EncodeDate), false, false, false);
 				}
 				Program.Client.Logger.Log(LogLevel.Debug, Events.QueueLoad, "Queue has been loaded from " + QueuePath);
 			}
