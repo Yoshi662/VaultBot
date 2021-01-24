@@ -84,7 +84,7 @@ namespace VaultBot
 			//We delete every unwanted file
 			foreach (ER_Anime item in releases)
 			{
-				if ((Proposal.FullFileName != item.FullFileName) && item.Exists())
+				if ((Proposal.FileName != item.FileName) && item.Exists())
 				{
 					File.Delete(item.FullPath);
 				}

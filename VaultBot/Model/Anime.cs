@@ -31,7 +31,7 @@ namespace VaultBot
 		/// It gets the File Name
 		/// <para>Ex: "Itadaki!_Seieki_01_HMV.MKV"</para>
 		/// </summary>
-		public virtual string FullFileName
+		public virtual string FileName
 		{
 			get { return Path.GetFileName(_fullPath); }
 			set { _fullPath = FolderPath + "\\" + value; }
@@ -45,7 +45,7 @@ namespace VaultBot
 		public virtual string FolderPath
 		{
 			get { return Path.GetDirectoryName(_fullPath); }
-			set { _fullPath = value.TrimEnd(new[] { '/', '\\' }) + "\\" + FullFileName; }
+			set { _fullPath = value.TrimEnd(new[] { '/', '\\' }) + "\\" + FileName; }
 		}
 
 
@@ -77,17 +77,17 @@ namespace VaultBot
 
 		public virtual bool PreEncode
 		{
-			get { return FullFileName.StartsWith(preEncodePrefix);  }
+			get { return FileName.StartsWith(preEncodePrefix);  }
 			set
 			{
-			bool IsAlreadyaPreEncode = FullFileName.StartsWith(preEncodePrefix);
+			bool IsAlreadyaPreEncode = FileName.StartsWith(preEncodePrefix);
 				if (value && !IsAlreadyaPreEncode)
 				{
-					FullFileName = preEncodePrefix + FullFileName;
+					FileName = preEncodePrefix + FileName;
 				}
 				if (!value && IsAlreadyaPreEncode)
 				{
-					FullFileName.Remove(_fullPath.IndexOf(preEncodePrefix), preEncodePrefix.Length);
+					FileName.Remove(_fullPath.IndexOf(preEncodePrefix), preEncodePrefix.Length);
 				}
 			}
 		}
@@ -108,13 +108,10 @@ namespace VaultBot
 		}
 		public bool Exists() => File.Exists(this.FullPath);
 
-		public override string ToString()
-		{
-			return FullFileName;
-		}
+
 		/// <summary>
 		/// Gets the Full Path
 		/// </summary>
-		public virtual string GetInfo() => this.ToString();
+		public virtual string GetInfo() => FileName;
 	}
 }

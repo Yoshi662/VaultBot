@@ -72,7 +72,7 @@ namespace VaultBot
 			Encode[] encs = EncodeQueue.ToArray();
 			foreach (Encode item in encs)
 			{
-				if (item.Anime.FullFileName == input.FullFileName)
+				if (item.Anime.FileName == input.FileName)
 				{
 					return true;
 				}
@@ -90,8 +90,16 @@ namespace VaultBot
 
 				if (e.Anime is ER_Anime)
 				{
-					//We remove the duplicates
-					e.Anime = HelperMethods.RemoveDuplicates((ER_Anime)e.Anime);
+					try
+					{
+						//We remove the duplicates
+						e.Anime = HelperMethods.RemoveDuplicates((ER_Anime)e.Anime);
+					}
+					catch (IOException ex)
+					{
+						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, $"Tried to remove duplicates of {e.Anime.GetInfo()}, But some files were being used.");
+					}
+
 				}
 
 				//And we encode the anime
@@ -187,7 +195,7 @@ namespace VaultBot
 					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeStart, $"\"{anime.GetInfo()}\" - Has Started Encoding");
 				} else
 				{
-					Program.Client.Logger.Log(LogLevel.Warning, Events.EncodeStart, $"\"{anime.GetInfo()}\" - Has Skipped Encoding");
+					Program.Client.Logger.Log(LogLevel.Warning, Events.EncodeError, $"\"{anime.GetInfo()}\" - Has Skipped Encoding");
 				}
 
 				if ((SendUpdates && UpdatesChannel != null) && !SkipEncode)
@@ -198,7 +206,7 @@ namespace VaultBot
 					{
 						if (!string.IsNullOrEmpty(e.Data))
 						{
-							if (DateTime.Now - lastedit > TimeSpan.FromMinutes(15))
+							if (DateTime.Now - lastedit > TimeSpan.FromMinutes(5))
 							{
 								lastedit = DateTime.Now;
 								SendUpdateToChannel(e.Data);
@@ -213,6 +221,7 @@ namespace VaultBot
 					HandBrakeCLI.WaitForExit();
 					Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{anime.GetInfo()}\" - Has Finished Encoding");
 				}
+				//TODO Verificar que esta linea no da una excepcion que es recogida por EncodeLoop()
 				File.Delete(preencode.FullPath);
 			}));
 			th.Start();
@@ -260,6 +269,7 @@ namespace VaultBot
 				@"Recodificado de animes",
 				EncodeQueue.Count > 0 ? @"*" + EncodeQueue.Count + " Elementos en la cola*" : @"*No hay items en la cola ahora mismo*"
 			));
+
 			//we set the actual time
 			builder.WithTimestamp(DateTime.Now);
 			Encode[] encodes = EncodeQueue.ToArray();

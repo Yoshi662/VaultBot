@@ -70,7 +70,7 @@ namespace VaultBot.Tests
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\VaultBotUnitTesting\[Erai-raws] The Legend Of Unit Testing - 03 [1080p].mkv");
 			anime.FolderPath = @"D:\Temp";
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\[Erai-raws] The Legend Of Unit Testing - 03 [1080p].mkv");
-			Assert.AreEqual(anime.FullFileName, @"[Erai-raws] The Legend Of Unit Testing - 03 [1080p].mkv");
+			Assert.AreEqual(anime.FileName, @"[Erai-raws] The Legend Of Unit Testing - 03 [1080p].mkv");
 			Assert.AreEqual(anime.FolderPath, @"D:\Temp");
 			//We check  every fucking single thing posible
 
@@ -91,13 +91,13 @@ namespace VaultBot.Tests
 			Assert.AreEqual(anime.HasMulti, true);
 
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\[Erai-raws] The Legend Of Unit Testing - 03 END [v0][v2][1080p][pre-enc][Multiple Subtitle].mkv.!qB");
-			Assert.AreEqual(anime.FullFileName, @"[Erai-raws] The Legend Of Unit Testing - 03 END [v0][v2][1080p][pre-enc][Multiple Subtitle].mkv.!qB");
+			Assert.AreEqual(anime.FileName, @"[Erai-raws] The Legend Of Unit Testing - 03 END [v0][v2][1080p][pre-enc][Multiple Subtitle].mkv.!qB");
 			Assert.AreEqual(anime.FolderPath, @"D:\Temp");
 
 			anime.Title = "I Want this shit to work so I can sleep more than 4 hours a day"; //This may not actually be true.
 
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\[Erai-raws] I Want this shit to work so I can sleep more than 4 hours a day - 03 END [v0][v2][1080p][pre-enc][Multiple Subtitle].mkv.!qB");
-			Assert.AreEqual(anime.FullFileName, @"[Erai-raws] I Want this shit to work so I can sleep more than 4 hours a day - 03 END [v0][v2][1080p][pre-enc][Multiple Subtitle].mkv.!qB");
+			Assert.AreEqual(anime.FileName, @"[Erai-raws] I Want this shit to work so I can sleep more than 4 hours a day - 03 END [v0][v2][1080p][pre-enc][Multiple Subtitle].mkv.!qB");
 			Assert.AreEqual(anime.FolderPath, @"D:\Temp");
 		}
 	}

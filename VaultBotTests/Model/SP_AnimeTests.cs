@@ -56,7 +56,7 @@ namespace VaultBot.Tests
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\VaultBotUnitTesting\[SubsPlease] Yuru Camp S2 - 01v2 (1080p) [8539B48E][pre-enc].mkv");
 			anime.FolderPath = @"D:\Temp";
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\[SubsPlease] Yuru Camp S2 - 01v2 (1080p) [8539B48E][pre-enc].mkv");
-			Assert.AreEqual(anime.FullFileName, @"[SubsPlease] Yuru Camp S2 - 01v2 (1080p) [8539B48E][pre-enc].mkv");
+			Assert.AreEqual(anime.FileName, @"[SubsPlease] Yuru Camp S2 - 01v2 (1080p) [8539B48E][pre-enc].mkv");
 			Assert.AreEqual(anime.FolderPath, @"D:\Temp");
 
 			Assert.AreEqual(anime.ImprovedVersion, "v2");
@@ -73,7 +73,7 @@ namespace VaultBot.Tests
 			anime.N_Ep = "27";
 
 			Assert.AreEqual(anime.FullPath, @"D:\Temp\[SubsPlease] UnitTesting is fun - 27v14 (1080p) [00X00X00].mkv");
-			Assert.AreEqual(anime.FullFileName, @"[SubsPlease] UnitTesting is fun - 27v14 (1080p) [00X00X00].mkv");
+			Assert.AreEqual(anime.FileName, @"[SubsPlease] UnitTesting is fun - 27v14 (1080p) [00X00X00].mkv");
 			Assert.AreEqual(anime.FolderPath, @"D:\Temp");
 
 		}

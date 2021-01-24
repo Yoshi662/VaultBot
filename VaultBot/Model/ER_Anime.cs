@@ -27,7 +27,7 @@ namespace VaultBot
 		/// It gets the File Name
 		/// <para>Ex: "Itadaki!_Seieki_01_HMV.MKV"</para>
 		/// </summary>
-		public override string FullFileName { get => this.ToString(); }
+		public override string FileName { get => this.ToString(); }
 		public string Title { get; set; }
 		public string N_Ep { get; set; }
 		public bool HasMulti { get; set; }
@@ -41,7 +41,7 @@ namespace VaultBot
 
 		public ER_Anime(string FullPath) : base(FullPath)
 		{
-			if (!TitleRegex.IsMatch(FullFileName))
+			if (!TitleRegex.IsMatch(FileName))
 			{
 				throw new ArgumentException("The title sent does not match the Regex");
 			}
@@ -60,7 +60,7 @@ namespace VaultBot
 		}
 		public override string ToString()
 		{
-			if (Title is null && N_Ep is null) return base.FullFileName;
+			if (Title is null && N_Ep is null) return base.FileName;
 
 
 			string output = "";

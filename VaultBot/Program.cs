@@ -22,8 +22,8 @@ namespace VaultBot
 
 	public class Program
 	{
-		internal static readonly string version = "2.4.0";
-		internal static readonly string internalname = "Subs Please!!!";
+		internal static readonly string version = "2.4.2";
+		internal static readonly string internalname = "Long Queues";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
 		public static DiscordClient Client { get; set; }
