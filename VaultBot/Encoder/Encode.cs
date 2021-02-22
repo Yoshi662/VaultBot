@@ -26,10 +26,28 @@ namespace VaultBot
 			} else if (SP_Anime.TitleRegex.IsMatch(fullpath))
 			{
 				this.Anime = new SP_Anime(fullpath);
-			} else {
+			} else
+			{
 				this.Anime = new Anime(fullpath);
 			}
 
 		}
+	}
+
+	/// <summary>
+	/// We're using this struct to store the essential data
+	/// </summary>
+	public struct TinyEncode
+	{
+		public string FullPath { get; set; }
+		public DateTime EncodeDate { get; set; }
+		public int AnimeType { get; set; }
+	}
+
+	public enum AnimeType
+	{
+		Anime,
+		ER_Anime,
+		SP_Anime
 	}
 }

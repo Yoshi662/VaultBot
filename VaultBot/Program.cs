@@ -22,8 +22,8 @@ namespace VaultBot
 
 	public class Program
 	{
-		internal static readonly string version = "2.4.2";
-		internal static readonly string internalname = "Long Queues";
+		internal static readonly string version = "2.4.3";
+		internal static readonly string internalname = "Handbrake! behave.";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
 		public static DiscordClient Client { get; set; }
@@ -42,14 +42,14 @@ namespace VaultBot
 		public async Task RunBotAsync()
 		{
 
-			var json = "";
-			using (var fs = File.OpenRead("config.json"))
-			using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+			string json = "";
+			using (FileStream fs = File.OpenRead("config.json"))
+			using (StreamReader sr = new StreamReader(fs, new UTF8Encoding(false)))
 				json = await sr.ReadToEndAsync();
 
 
-			var cfgjson = JsonConvert.DeserializeObject<ConfigJson>(json);
-			var cfg = new DiscordConfiguration
+			ConfigJson cfgjson = JsonConvert.DeserializeObject<ConfigJson>(json);
+			DiscordConfiguration cfg = new DiscordConfiguration
 			{
 				Token = cfgjson.Token,
 				TokenType = TokenType.Bot,

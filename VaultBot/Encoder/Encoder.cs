@@ -24,7 +24,6 @@ namespace VaultBot
 
 		public bool SendUpdates = false;
 		public DiscordChannel UpdatesChannel { get; set; }
-
 		public LinkedList<Encode> EncodeQueue { get; private set; }
 
 		private static Encoder _instance;
@@ -40,6 +39,7 @@ namespace VaultBot
 		{
 			EncodeQueue = new LinkedList<Encode>();
 		}
+
 		/// <summary>
 		/// Adds a new <see cref="VaultBot.Encode"/> to the <see cref="EncodeQueue"/>.
 		/// </summary>
@@ -75,7 +75,7 @@ namespace VaultBot
 
 			if (updateMsgQueue) SendUpdateToChannel();
 		}
-		
+
 		private bool CheckIfExists(Anime input) //TODO verificar que funciona como deberia
 		{
 			bool exists = false;
@@ -97,7 +97,6 @@ namespace VaultBot
 			{
 				//We wait until the first encode datetime has reached
 				Encode e = WaitUntilFirstEncode();
-
 				if (e.Anime is ER_Anime)
 				{
 					try
@@ -123,7 +122,6 @@ namespace VaultBot
 				}
 				//Since the starting of some tasks depends on the size of the Queue.
 				//We don't remove the element until the very end of this loop
-
 
 				EncodeQueue.Remove(e);
 				SaveCurentQueueToFile(QueuePath);
@@ -152,7 +150,7 @@ namespace VaultBot
 			if (!anime.Exists())
 			{
 				throw new FileNotFoundException($"Se ha intentado Recodificar {anime.GetInfo()} pero no se ha encontrado", anime.FullPath);
-			}	
+			}
 
 			Thread th = new Thread(new ThreadStart(() =>
 			{
@@ -221,9 +219,21 @@ namespace VaultBot
 								lastedit = DateTime.Now;
 								SendUpdateToChannel(e.Data);
 							}
+							//Sometimes Handbrake decides to not close. So it might need a push
+							if (e.Data.Contains(@"libhb: work result = 0")) //End of execution
+							{
+								int PID = HandBrakeCLI.Id;
+								if (!HandBrakeCLI.HasExited && PID == HandBrakeCLI.Id)
+								{
+									Thread.Sleep(15 * 1000); //15 seg
+									if (!HandBrakeCLI.HasExited && PID == HandBrakeCLI.Id)
+									{
+										HandBrakeCLI.Close();
+									}
+								}
+							}
 						}
 					};
-
 				}
 
 				if (!SkipEncode)
@@ -318,22 +328,5 @@ namespace VaultBot
 				await msg.PinAsync();
 			}
 		}
-	}
-
-	/// <summary>
-	/// We're using this struct to store the essential data
-	/// </summary>
-	public struct TinyEncode
-	{
-		public string FullPath { get; set; }
-		public DateTime EncodeDate { get; set; }
-		public int AnimeType { get; set; }
-	}
-
-	public enum AnimeType
-	{
-		Anime,
-		ER_Anime,
-		SP_Anime
 	}
 }
