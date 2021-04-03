@@ -25,9 +25,16 @@ namespace VaultBot
 		/*[Command("test"), RequireOwner(), Hidden()] //Aliases(new[] { "t" }),
 		public async Task test(CommandContext ctx)
 		{ }*/
-		[Command("updatequeue"), RequireOwner(), Hidden(), Aliases(new[] { "uq" })] //,
+		[Command("updatequeue"), RequireOwner(), Aliases(new[] { "uq" })] //,
 		public async Task updatequeue(CommandContext ctx)
 		{
+			Encoder.Instance.SendUpdateToChannel();
+			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
+		}
+		[Command("reloadqueue"), RequireOwner(), Aliases(new[] { "uq" }), Description("Sobreeescribe la cola actual a partir del archivo JSON")] //,
+		public async Task reloadqueue(CommandContext ctx)
+		{
+			Encoder.Instance.LoadQueueFromFile();
 			Encoder.Instance.SendUpdateToChannel();
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
@@ -94,7 +101,7 @@ namespace VaultBot
 			ctx.RespondAsync($"Se recodificara {e.Anime.GetInfo()} inmediatamente");
 		}
 
-		[Command("encodebatch"),Hidden(), Aliases(new[] { "eb" }), Description("Adds a couple of links to the encode queue (Some formatting required)")]
+		[Command("encodebatch"), Aliases(new[] { "eb" }), Description("Adds a couple of links to the encode queue (Some formatting required)")]
 		public async Task encodebatch(CommandContext ctx, [RemainingText] string text)
 		{
 			int cont = 0;
@@ -114,7 +121,7 @@ namespace VaultBot
 		}
 
 
-		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Hidden()]
+		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Description("Borra los duplicados de ER siempre que sea posible")]
 		public async Task CleanDuplicates(CommandContext ctx, [RemainingText(), Description("Ruta completa a la carpeta")] string rutacompleta)
 		{
 			string[] files = Directory.GetFiles(rutacompleta);
@@ -129,7 +136,7 @@ namespace VaultBot
 		public async Task Pinger(CommandContext ctx)
 		{
 			await ctx.TriggerTypingAsync();
-			var emoji = DiscordEmoji.FromName(ctx.Client, ":ping_pong:");
+			DiscordEmoji emoji = DiscordEmoji.FromName(ctx.Client, ":ping_pong:");
 			await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
 		}
 
@@ -143,26 +150,26 @@ namespace VaultBot
 		[Command("status"), Description("Comrpueba si las notificaciones estan activadas")]
 		public async Task Status(CommandContext ctx)
 		{
-			bool status = Program.AnimeUpdater.MasterWatcher.EnableRaisingEvents;
+			bool status = Program.AnimeUpdater.ShowUpdates;
 			string texto = $"Notificaciones {(status ? "Activadas" : "Desactivadas")}";
 			DiscordColor color = new DiscordColor(status ? "#00ff00" : "#ff0000");
 			ctx.RespondAsync(null, false, QuickEmbed(texto, color));
 		}
 
-		[Command("start"), Description("Activa las notificaciones")]
+		[Command("start"), Description("Activa las notificaciones - Esto no evitara lo animes añadidos se recodiquen")]
 		public async Task Start(CommandContext ctx)
 		{
-			Program.AnimeUpdater.MasterWatcher.EnableRaisingEvents = true;
+			Program.AnimeUpdater.ShowUpdates = true;
 			await ctx.Client.UpdateStatusAsync(null, UserStatus.Online, null);
 			string texto = $"Notificaciones activadas";
 			DiscordColor color = new DiscordColor("#00FF00");
 			await ctx.RespondAsync(null, false, QuickEmbed(texto, color));
 		}
 
-		[Command("stop"), Description("Desactiva las notificaciones")]
+		[Command("stop"), Description("Desactiva las notificaciones - Esto no evitara lo animes añadidos se recodiquen")]
 		public async Task Stop(CommandContext ctx)
 		{
-			Program.AnimeUpdater.MasterWatcher.EnableRaisingEvents = false;
+			Program.AnimeUpdater.ShowUpdates = false;
 			await ctx.Client.UpdateStatusAsync(null, UserStatus.DoNotDisturb, null);
 			string texto = $"Notificaciones desactivadas";
 			DiscordColor color = new DiscordColor("#FF0000");

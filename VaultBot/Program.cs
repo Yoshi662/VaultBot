@@ -22,8 +22,8 @@ namespace VaultBot
 
 	public class Program
 	{
-		internal static readonly string version = "2.4.3";
-		internal static readonly string internalname = "Handbrake! behave.";
+		internal static readonly string version = "2.5.0b";
+		internal static readonly string internalname = "Getting the job already done";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
 		public static DiscordClient Client { get; set; }
@@ -81,6 +81,8 @@ namespace VaultBot
 			commands.CommandErrored += this.Commands_CommandErrored;
 
 			await Client.ConnectAsync();
+
+			HelperMethods.delay(5000);
 
 			AnimeUpdater = new AnimeHandler(cfgjson.AnimePath);
 			senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.SenderChannel));

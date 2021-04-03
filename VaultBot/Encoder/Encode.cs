@@ -12,7 +12,7 @@ namespace VaultBot
 			this.EncodeDate = EncodeDate;
 		}
 		/// <summary>
-		/// Will create an appropiate Childen of Anime (ER_Anime or SP_Anime Depending on the input)
+		/// Will create an appropiate Childen of Anime (ER, SP, or JD Depending on the input)
 		/// </summary>
 		/// <param name="fullpath">The full rooted path to the file</param>
 		/// <param name="EncodeDate">The Encode date to the File</param>
@@ -26,11 +26,13 @@ namespace VaultBot
 			} else if (SP_Anime.TitleRegex.IsMatch(fullpath))
 			{
 				this.Anime = new SP_Anime(fullpath);
+			} else if (JD_Anime.TitleRegex.IsMatch(fullpath))
+			{
+				this.Anime = new JD_Anime(fullpath);
 			} else
 			{
 				this.Anime = new Anime(fullpath);
 			}
-
 		}
 	}
 
@@ -48,6 +50,7 @@ namespace VaultBot
 	{
 		Anime,
 		ER_Anime,
-		SP_Anime
+		SP_Anime,
+		JD_Anime
 	}
 }

@@ -22,6 +22,7 @@ namespace VaultBot
 		 */
 		const string QueuePath = ".\\CurrentQueue.json";
 
+		Thread HandbrakeWatcher;
 		public bool SendUpdates = false;
 		public DiscordChannel UpdatesChannel { get; set; }
 		public LinkedList<Encode> EncodeQueue { get; private set; }
@@ -111,17 +112,21 @@ namespace VaultBot
 
 				}
 
-				//And we encode the anime
-				try
+				if (e.Anime !is JD_Anime)
 				{
-					Encode(e.Anime);
+					//And we encode the anime
+					try
+					{
+						Encode(e.Anime);
+					}
+					catch (FileNotFoundException ex)
+					{
+						Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Tried to Encode \"{e.Anime.GetInfo()}\" but it was not found");
+					}
+					//Since the starting of some tasks depends on the size of the Queue.
+					//We don't remove the element until the very end of this loop
 				}
-				catch (FileNotFoundException ex)
-				{
-					Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Tried to Encode \"{e.Anime.GetInfo()}\" but it was not found");
-				}
-				//Since the starting of some tasks depends on the size of the Queue.
-				//We don't remove the element until the very end of this loop
+
 
 				EncodeQueue.Remove(e);
 				SaveCurentQueueToFile(QueuePath);
@@ -149,7 +154,7 @@ namespace VaultBot
 		{
 			if (!anime.Exists())
 			{
-				throw new FileNotFoundException($"Se ha intentado Recodificar {anime.GetInfo()} pero no se ha encontrado", anime.FullPath);
+				throw new FileNotFoundException($"Se ha intentado Recodificar {anime.GetInfo()} pero no se ha encontrado el archivo original", anime.FullPath);
 			}
 
 			Thread th = new Thread(new ThreadStart(() =>
@@ -171,16 +176,18 @@ namespace VaultBot
 				//This should take care of all possible scenarios (Either Handbrake is still running or not)
 				catch (IOException e)
 				{
-					SkipEncode = true;
+					
 					HandBrakeCLI = Process.GetProcessesByName("HandbrakeCLI").FirstOrDefault();
 
 					if (HandBrakeCLI is null)
 					{
-						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process not found. Skipping Encode");
+						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process not found. Restarting Encode");
+						File.Delete(anime.FullPath);
 					} else
 					{
 						Program.Client.Logger.Log(LogLevel.Error, Events.QueueError, "PostEncoded file found, HandBrake Process found. Waiting for exit");
 						HandBrakeCLI.WaitForExit();
+						SkipEncode = true;
 						Program.Client.Logger.Log(LogLevel.Information, Events.EncodeEnd, $"\"{anime.GetInfo()}\" - Has Finished Encoding");
 					}
 				}
@@ -219,19 +226,6 @@ namespace VaultBot
 								lastedit = DateTime.Now;
 								SendUpdateToChannel(e.Data);
 							}
-							//Sometimes Handbrake decides to not close. So it might need a push
-							if (e.Data.Contains(@"libhb: work result = 0")) //End of execution
-							{
-								int PID = HandBrakeCLI.Id;
-								if (!HandBrakeCLI.HasExited && PID == HandBrakeCLI.Id)
-								{
-									Thread.Sleep(15 * 1000); //15 seg
-									if (!HandBrakeCLI.HasExited && PID == HandBrakeCLI.Id)
-									{
-										HandBrakeCLI.Close();
-									}
-								}
-							}
 						}
 					};
 				}
@@ -243,6 +237,24 @@ namespace VaultBot
 				}
 				//TODO Verificar que esta linea no da una excepcion que es recogida por EncodeLoop()
 				File.Delete(preencode.FullPath);
+
+				/// <summary>
+				/// It starts a small thread that waits a day and if the current ID is equal to the ID a Day it will forcebly close the process
+				/// </summary>
+				void StartSupervisor()
+				{
+					new Thread(new ThreadStart(() =>
+					{
+						int OldPID = HandBrakeCLI.Id;
+						Thread.Sleep(TimeSpan.FromDays(1));
+						if (OldPID == HandBrakeCLI.Id)
+						{
+							HandBrakeCLI.Close();
+						}			
+					})).Start();
+				}
+
+
 			}));
 			th.Start();
 			th.Join();

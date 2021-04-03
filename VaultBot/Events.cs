@@ -14,7 +14,7 @@ namespace VaultBot
 		/// </summary>
 		public static EventId EncodeStart { get; } = new EventId(201, "ENCODER_STR");
 		public static EventId EncodeEnd { get; } = new EventId(202, "ENCODER_END");
-		public static EventId EncodeError { get; } = new EventId(203, "ENCODER_ERROR");
+		public static EventId EncodeError { get; } = new EventId(203, "ENCODER_ERR");
 
 		/// <summary>
 		/// Default Event for Queue Related Events
@@ -23,8 +23,7 @@ namespace VaultBot
 		public static EventId QueueAdd { get; } = new EventId(211, "QUEUE_ADD");
 		public static EventId QueueLoad { get; } = new EventId(212, "QUEUE_LOAD");
 		public static EventId QueueSave { get; } = new EventId(213, "QUEUE_SAVE");
-		public static EventId QueueError { get; } = new EventId(214, "QUEUE_ERROR");
-
+		public static EventId QueueError { get; } = new EventId(214, "QUEUE_ERR");
 
 		/// <summary>
 		/// Default Event for Anime Related Events

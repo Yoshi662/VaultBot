@@ -49,14 +49,14 @@ namespace VaultBot
 		}
 
 
-		public string Extension
+		public virtual string Extension
 		{
 			get { return Path.GetExtension(_fullPath); }
 			set { _fullPath = Path.ChangeExtension(_fullPath, value); }
 		}
 
 		/// <summary>
-		/// This Only checks if it has the .!Qb Extension
+		/// This only checks if it has the .!Qb Extension
 		/// </summary>
 		public virtual bool IsDownloading
 		{

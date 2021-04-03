@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VaultBot
@@ -113,6 +114,8 @@ namespace VaultBot
 					return AnimeType.ER_Anime;
 				case "SP_Anime":
 					return AnimeType.SP_Anime;
+				case "JD_anime":
+					return AnimeType.JD_Anime;
 				default:
 					throw new ArgumentOutOfRangeException($"{a.GetType().Name} - {a.GetInfo()}", "Uno de los items de la cola no es de ningun tipo Anime o Tipo heredado");
 			}
@@ -126,9 +129,15 @@ namespace VaultBot
 			} else if (SP_Anime.TitleRegex.IsMatch(fullpath))
 			{
 				return AnimeType.SP_Anime;
-			} else {
+			}
+			else if(JD_Anime.TitleRegex.IsMatch(fullpath)){
+				return AnimeType.JD_Anime;
+			} else 
+			{
 				return AnimeType.Anime;
 			}
 		}
+
+		public static void delay(int delay = 350) => Thread.Sleep(delay);
 	}
 }

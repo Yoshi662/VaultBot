@@ -21,6 +21,8 @@ namespace VaultBot
 
 		public FileSystemWatcher MasterWatcher = new FileSystemWatcher();
 
+		public bool ShowUpdates = true;
+
 		public AnimeHandler(string AnimePath)
 		{
 			this.MasterWatcher.Path = AnimePath;
@@ -42,6 +44,7 @@ namespace VaultBot
 		}
 
 		//HACK Improve the logic on this command
+		//We could implement GetXX_UpdateEmbed as one complexy method
 		private async void OnRenamedAsync(object sender, RenamedEventArgs e)
 		{
 			string NewName = e.Name.Split('\\').Last();
@@ -54,56 +57,82 @@ namespace VaultBot
 			//On finished download
 			if (Path.GetExtension(OldName) == ".!qB" && Path.GetExtension(NewName) != ".!qB")
 			{
+				//We get the type of anime
+				AnimeType animeType = HelperMethods.GetAnimeType(NewPath);
 
-				if (ER_Anime.TitleRegex.IsMatch(NewName))
+				if (animeType == AnimeType.ER_Anime)
 				{
 					ER_Anime ER_Anime = new ER_Anime(NewPath + NewName);
-
-					string titleOutput = ER_Anime.GetInfo();
-					if (ER_Anime.HasMulti && ER_Anime.IsFinale)
-					{
-						titleOutput += "\n**FINALE** - *Multi Subs*";
-					} else
-					{
-						titleOutput += "\n";
-						titleOutput += ER_Anime.IsFinale ? "**FINALE**" : "";
-						titleOutput += ER_Anime.HasMulti ? "*Multi Subs*" : "";
-					}
-
-					string descOutput = "";
-					if (ER_Anime.IsV0) descOutput += "Version Preliminar\n";
-					if (ER_Anime.IsV2) descOutput += "Version Verificada\n";
-					descOutput += "Ahora disponible en el servidor";
-
 
 					if (ER_Anime.Exists())
 					{
 						Encoder.Instance.AddAnimeToQueue(new Encode(ER_Anime, startEncodeDate));
-						await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(titleOutput, descOutput));
+						if(ShowUpdates) await Channel.SendMessageAsync(null, false, GetER_UpdateEmbed(ER_Anime));
 					}
 
-				} else if (SP_Anime.TitleRegex.IsMatch(NewName))
+				} else if (animeType == AnimeType.SP_Anime)
 				{
 					SP_Anime SP_Anime = new SP_Anime(NewPath + NewName);
-					string titleOutput = SP_Anime.GetInfo();
-
-					string descOutput = "";
-					if (!String.IsNullOrWhiteSpace(SP_Anime.ImprovedVersion)) descOutput += $"Version Mejorada *{SP_Anime.ImprovedVersion}*\n";
-					descOutput += "Ahora disponible en el servidor";
-
 					if (SP_Anime.Exists())
 					{
 						Encoder.Instance.AddAnimeToQueue(new Encode(SP_Anime, startEncodeDate));
-						await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(titleOutput, descOutput));
+						if (ShowUpdates) await Channel.SendMessageAsync(null, false, GetSP_UpdateEmbed(SP_Anime));
 					}
 
-				} else //We just publish the anime
+				} else if (animeType == AnimeType.JD_Anime)
+				{
+					JD_Anime JD_Anime = new JD_Anime(NewPath + NewName);
+					if (JD_Anime.Exists())
+					{
+						//Since judas torrents are already encoded we don't need to reencode them
+						if (ShowUpdates) await Channel.SendMessageAsync(null, false, GetJD_UpdateEmbed(JD_Anime));
+					}
+
+				} else
 				{
 					Anime a = new Anime(NewPath + NewName); //a
 					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
 					Encoder.Instance.AddAnimeToQueue(new Encode(a, startEncodeDate));
 				}
 			}
+		}
+
+		private DiscordEmbed GetER_UpdateEmbed(ER_Anime e)
+		{
+			string titleOutput = e.GetInfo();
+			if (e.HasMulti && e.IsFinale)
+			{
+				titleOutput += "\n**FINALE** - *Multi Subs*";
+			} else
+			{
+				titleOutput += "\n";
+				titleOutput += e.IsFinale ? "**FINALE**" : "";
+				titleOutput += e.HasMulti ? "*Multi Subs*" : "";
+			}
+
+			string descOutput = "";
+			if (e.IsV0) descOutput += "Version Preliminar\n";
+			if (e.IsV2) descOutput += "Version Verificada\n";
+			descOutput += "Ahora disponible en el servidor";
+			return HelperMethods.QuickEmbed(titleOutput, descOutput);
+		}
+
+		private DiscordEmbed GetSP_UpdateEmbed(SP_Anime e)
+		{
+			string titleOutput = e.GetInfo();
+
+			string descOutput = "";
+			if (!String.IsNullOrWhiteSpace(e.ImprovedVersion)) descOutput += $"Version Mejorada *{e.ImprovedVersion}*\n";
+			descOutput += "Ahora disponible en el servidor";
+			return HelperMethods.QuickEmbed(titleOutput, descOutput);
+		}
+
+		private DiscordEmbed GetJD_UpdateEmbed(JD_Anime e)
+		{
+			return HelperMethods.QuickEmbed(
+				e.GetInfo(),
+				"Ahora disponible en el servidor"
+			);
 		}
 	}
 }

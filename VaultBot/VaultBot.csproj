@@ -156,6 +156,7 @@
     <Compile Include="Model\ER_Anime.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="HelperMethods.cs" />
+    <Compile Include="Model\JD_Anime.cs" />
     <Compile Include="Model\SP_Anime.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Model\ER_AnimeTests.cs" />
     <Compile Include="HelperMethodsTests.cs" />
+    <Compile Include="Model\JD_AnimeTests.cs" />
     <Compile Include="Model\SP_AnimeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
