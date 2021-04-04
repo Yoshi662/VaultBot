@@ -22,7 +22,7 @@ namespace VaultBot
 
 	public class Program
 	{
-		internal static readonly string version = "2.5.0b";
+		internal static readonly string version = "2.5.1";
 		internal static readonly string internalname = "Getting the job already done";
 
 		public static AnimeHandler AnimeUpdater { get; set; }

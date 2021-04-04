@@ -31,7 +31,7 @@ namespace VaultBot
 			Encoder.Instance.SendUpdateToChannel();
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
-		[Command("reloadqueue"), RequireOwner(), Aliases(new[] { "uq" }), Description("Sobreeescribe la cola actual a partir del archivo JSON")] //,
+		[Command("reloadqueue"), RequireOwner(), Aliases(new[] { "rq" }), Description("Sobreeescribe la cola actual a partir del archivo JSON")] //,
 		public async Task reloadqueue(CommandContext ctx)
 		{
 			Encoder.Instance.LoadQueueFromFile();

@@ -123,14 +123,15 @@ namespace VaultBot
 
 		public static AnimeType GetAnimeType(String fullpath)
 		{
-			if (ER_Anime.TitleRegex.IsMatch(fullpath))
+			string filename = Path.GetFileName(fullpath);
+			if (ER_Anime.TitleRegex.IsMatch(filename))
 			{
 				return AnimeType.ER_Anime;
-			} else if (SP_Anime.TitleRegex.IsMatch(fullpath))
+			} else if (SP_Anime.TitleRegex.IsMatch(filename))
 			{
 				return AnimeType.SP_Anime;
 			}
-			else if(JD_Anime.TitleRegex.IsMatch(fullpath)){
+			else if(JD_Anime.TitleRegex.IsMatch(filename)){
 				return AnimeType.JD_Anime;
 			} else 
 			{

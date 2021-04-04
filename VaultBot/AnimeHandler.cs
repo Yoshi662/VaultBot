@@ -58,7 +58,7 @@ namespace VaultBot
 			if (Path.GetExtension(OldName) == ".!qB" && Path.GetExtension(NewName) != ".!qB")
 			{
 				//We get the type of anime
-				AnimeType animeType = HelperMethods.GetAnimeType(NewPath);
+				AnimeType animeType = HelperMethods.GetAnimeType(NewName);
 
 				if (animeType == AnimeType.ER_Anime)
 				{
@@ -91,7 +91,7 @@ namespace VaultBot
 				} else
 				{
 					Anime a = new Anime(NewPath + NewName); //a
-					await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
+					if (ShowUpdates) await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
 					Encoder.Instance.AddAnimeToQueue(new Encode(a, startEncodeDate));
 				}
 			}
