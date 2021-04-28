@@ -67,7 +67,7 @@ namespace VaultBot
 					if (ER_Anime.Exists())
 					{
 						Encoder.Instance.AddAnimeToQueue(new Encode(ER_Anime, startEncodeDate));
-						if(ShowUpdates) await Channel.SendMessageAsync(null, false, GetER_UpdateEmbed(ER_Anime));
+						if(ShowUpdates) await Channel.SendMessageAsync( GetER_UpdateEmbed(ER_Anime));
 					}
 
 				} else if (animeType == AnimeType.SP_Anime)
@@ -76,7 +76,7 @@ namespace VaultBot
 					if (SP_Anime.Exists())
 					{
 						Encoder.Instance.AddAnimeToQueue(new Encode(SP_Anime, startEncodeDate));
-						if (ShowUpdates) await Channel.SendMessageAsync(null, false, GetSP_UpdateEmbed(SP_Anime));
+						if (ShowUpdates) await Channel.SendMessageAsync( GetSP_UpdateEmbed(SP_Anime));
 					}
 
 				} else if (animeType == AnimeType.JD_Anime)
@@ -85,13 +85,13 @@ namespace VaultBot
 					if (JD_Anime.Exists())
 					{
 						//Since judas torrents are already encoded we don't need to reencode them
-						if (ShowUpdates) await Channel.SendMessageAsync(null, false, GetJD_UpdateEmbed(JD_Anime));
+						if (ShowUpdates) await Channel.SendMessageAsync( GetJD_UpdateEmbed(JD_Anime));
 					}
 
 				} else
 				{
 					Anime a = new Anime(NewPath + NewName); //a
-					if (ShowUpdates) await Channel.SendMessageAsync(null, false, HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
+					if (ShowUpdates) await Channel.SendMessageAsync( HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
 					Encoder.Instance.AddAnimeToQueue(new Encode(a, startEncodeDate));
 				}
 			}

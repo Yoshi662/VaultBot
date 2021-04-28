@@ -116,7 +116,7 @@ namespace VaultBot
 					cont++;
 				}
 			}
-			await ctx.RespondAsync(null, false, HelperMethods.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
+			await ctx.RespondAsync(HelperMethods.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
 			Encoder.Instance.SendUpdateToChannel();
 		}
 
@@ -144,7 +144,7 @@ namespace VaultBot
 		public async Task Publish(CommandContext ctx, [RemainingText] string s)
 		{
 			await ctx.TriggerTypingAsync();
-			Program.AnimeUpdater.Channel.SendMessageAsync(null, false, NewThingEmbed(s));
+			Program.AnimeUpdater.Channel.SendMessageAsync( NewThingEmbed(s));
 		}
 
 		[Command("status"), Description("Comrpueba si las notificaciones estan activadas")]
@@ -153,7 +153,7 @@ namespace VaultBot
 			bool status = Program.AnimeUpdater.ShowUpdates;
 			string texto = $"Notificaciones {(status ? "Activadas" : "Desactivadas")}";
 			DiscordColor color = new DiscordColor(status ? "#00ff00" : "#ff0000");
-			ctx.RespondAsync(null, false, QuickEmbed(texto, color));
+			ctx.RespondAsync(QuickEmbed(texto, color));
 		}
 
 		[Command("start"), Description("Activa las notificaciones - Esto no evitara lo animes añadidos se recodiquen")]
@@ -163,7 +163,7 @@ namespace VaultBot
 			await ctx.Client.UpdateStatusAsync(null, UserStatus.Online, null);
 			string texto = $"Notificaciones activadas";
 			DiscordColor color = new DiscordColor("#00FF00");
-			await ctx.RespondAsync(null, false, QuickEmbed(texto, color));
+			await ctx.RespondAsync(QuickEmbed(texto, color));
 		}
 
 		[Command("stop"), Description("Desactiva las notificaciones - Esto no evitara lo animes añadidos se recodiquen")]
@@ -173,7 +173,7 @@ namespace VaultBot
 			await ctx.Client.UpdateStatusAsync(null, UserStatus.DoNotDisturb, null);
 			string texto = $"Notificaciones desactivadas";
 			DiscordColor color = new DiscordColor("#FF0000");
-			await ctx.RespondAsync(null, false, QuickEmbed(texto, color));
+			await ctx.RespondAsync(QuickEmbed(texto, color));
 		}
 
 		[Command("version"), Description("Muestra la version del bot"), Aliases(new[] { "v" })]
@@ -188,7 +188,7 @@ namespace VaultBot
 			embedBuilder.AddField("Codigo fuente", "Mira el codigo fuente en: https://github.com/Yoshi662/VaultBot");
 			embedBuilder.AddField("DSharpPlus", $"Version: {ctx.Client.VersionString}");
 
-			await ctx.RespondAsync(null, false, embedBuilder.Build());
+			await ctx.RespondAsync(embedBuilder.Build());
 		}
 
 		[Command("reencode"), Description("Añade un archivo manualmente a la cola\n**Sobreescribe el archivo original**"), Aliases(new[] { "e", "encode", "addqueue" })]
@@ -214,10 +214,10 @@ namespace VaultBot
 				{
 					Encoder.Instance.AddAnimeToQueue(new Encode(f, DateTime.Now), true, false);
 				}
-				await ctx.RespondAsync(null, false, HelperMethods.QuickEmbed($"{files.Length} Videos Añadidos a la cola", "", false, false));
+				await ctx.RespondAsync(HelperMethods.QuickEmbed($"{files.Length} Videos Añadidos a la cola", "", false, false));
 			} else
 			{
-				await ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha podido encontrar el Archivo/Carpeta", "", false, false, DiscordColor.Red.ToString()));
+				await ctx.RespondAsync(HelperMethods.QuickEmbed("No se ha podido encontrar el Archivo/Carpeta", "", false, false, DiscordColor.Red.ToString()));
 			}
 			Encoder.Instance.SendUpdateToChannel();
 		}
@@ -230,11 +230,11 @@ namespace VaultBot
 				DiscordAttachment file = ctx.Message.Attachments.First();
 				WebClient client = new WebClient();
 				client.DownloadFile(file.Url, Properties.Settings.Default.TorrentFolder + file.FileName);
-				ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("Se ha descargado el torrent"));
+				ctx.RespondAsync(HelperMethods.QuickEmbed("Se ha descargado el torrent"));
 			}
 			catch (Exception e)
 			{
-				ctx.RespondAsync(null, false, HelperMethods.QuickEmbed("No se ha podido descargar el torrent", "Error: " + e.Message, false, false, DiscordColor.Red.ToString()));
+				ctx.RespondAsync(HelperMethods.QuickEmbed("No se ha podido descargar el torrent", "Error: " + e.Message, false, false, DiscordColor.Red.ToString()));
 			}
 		}
 

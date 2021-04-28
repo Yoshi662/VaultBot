@@ -22,7 +22,6 @@ namespace VaultBot
 		 */
 		const string QueuePath = ".\\CurrentQueue.json";
 
-		Thread HandbrakeWatcher;
 		public bool SendUpdates = false;
 		public DiscordChannel UpdatesChannel { get; set; }
 		public LinkedList<Encode> EncodeQueue { get; private set; }
@@ -77,7 +76,7 @@ namespace VaultBot
 			if (updateMsgQueue) SendUpdateToChannel();
 		}
 
-		private bool CheckIfExists(Anime input) //TODO verificar que funciona como deberia
+		private bool CheckIfExists(Anime input) 
 		{
 			bool exists = false;
 			Encode[] encs = EncodeQueue.ToArray();
@@ -112,7 +111,7 @@ namespace VaultBot
 
 				}
 
-				if (e.Anime !is JD_Anime)
+				if (!(e.Anime is JD_Anime))
 				{
 					//And we encode the anime
 					try
@@ -142,7 +141,7 @@ namespace VaultBot
 			while (DateTime.Now < e.EncodeDate)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				if (!e.Equals(EncodeQueue.First))
+				if (!e.Equals(EncodeQueue.First()))
 				{
 					e = EncodeQueue.First();
 				}
@@ -336,7 +335,7 @@ namespace VaultBot
 			}
 			catch (InvalidOperationException)
 			{
-				DiscordMessage msg = await UpdatesChannel.SendMessageAsync(null, false, builder.Build());
+				DiscordMessage msg = await UpdatesChannel.SendMessageAsync( builder.Build());
 				await msg.PinAsync();
 			}
 		}
