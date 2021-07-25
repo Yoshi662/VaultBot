@@ -25,13 +25,13 @@ namespace VaultBot
 		/*[Command("test"), RequireOwner(), Hidden()] //Aliases(new[] { "t" }),
 		public async Task test(CommandContext ctx)
 		{ }*/
-		[Command("updatequeue"), RequireOwner(), Aliases(new[] { "uq" })] //,
+		[Command("updatequeue"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "uq" })] //,
 		public async Task updatequeue(CommandContext ctx)
 		{
 			Encoder.Instance.SendUpdateToChannel();
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
-		[Command("reloadqueue"), RequireOwner(), Aliases(new[] { "rq" }), Description("Sobreeescribe la cola actual a partir del archivo JSON")] //,
+		[Command("reloadqueue"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "rq" }), Description("Sobreeescribe la cola actual a partir del archivo JSON")] //,
 		public async Task reloadqueue(CommandContext ctx)
 		{
 			Encoder.Instance.LoadQueueFromFile();
@@ -39,7 +39,7 @@ namespace VaultBot
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
 
-		[Command("deletequeue"), RequireOwner(), Aliases(new[] { "dq" }), Description("Borra todos los elementos en la cola")] //,
+		[Command("deletequeue"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "dq" }), Description("Borra todos los elementos en la cola")] //,
 		public async Task deletequeue(CommandContext ctx)
 		{
 			DiscordMessage msg = await ctx.RespondAsync("Estas seguro que quieres eliminar toda la lista de recodes?");
@@ -90,7 +90,7 @@ namespace VaultBot
 
 		}
 
-		[Command("encodeelement"), Aliases(new[] { "ee" }), Description("recodifica un elemento de la cola lo antes posible")]
+		[Command("encodequeueelement"), Aliases(new[] { "ee" }), Description("recodifica un elemento de la cola lo antes posible")]
 		public async Task encodeelement(CommandContext ctx, int nelem)
 		{
 			Encode e = Encoder.Instance.EncodeQueue.ToArray()[nelem];
@@ -118,10 +118,11 @@ namespace VaultBot
 			}
 			await ctx.RespondAsync(HelperMethods.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
 			Encoder.Instance.SendUpdateToChannel();
+			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
 
 
-		[Command("cleanER"), RequireOwner(), Aliases(new[] { "c" }), Description("Borra los duplicados de ER siempre que sea posible")]
+		[Command("cleanER"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "c" }), Description("Borra los duplicados de ER siempre que sea posible")]
 		public async Task CleanDuplicates(CommandContext ctx, [RemainingText(), Description("Ruta completa a la carpeta")] string rutacompleta)
 		{
 			string[] files = Directory.GetFiles(rutacompleta);
@@ -130,6 +131,7 @@ namespace VaultBot
 				ER_Anime e = new ER_Anime(f);
 				HelperMethods.RemoveDuplicates(e);
 			}
+			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
 
 		[Command("ping"), Description("Hace un ping al bot")]
@@ -144,7 +146,8 @@ namespace VaultBot
 		public async Task Publish(CommandContext ctx, [RemainingText] string s)
 		{
 			await ctx.TriggerTypingAsync();
-			Program.AnimeUpdater.Channel.SendMessageAsync( NewThingEmbed(s));
+			Program.AnimeUpdater.Channel.SendMessageAsync(NewThingEmbed(s));
+			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
 
 		[Command("status"), Description("Comrpueba si las notificaciones estan activadas")]

@@ -76,19 +76,13 @@ namespace VaultBot
 			if (updateMsgQueue) SendUpdateToChannel();
 		}
 
-		private bool CheckIfExists(Anime input) 
-		{
-			bool exists = false;
-			Encode[] encs = EncodeQueue.ToArray();
-			foreach (Encode item in encs)
-			{
-				if (item.Anime.FileName == input.FileName)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
+		
+		/// <summary>
+		/// Checks if the anime sent is on the queue
+		/// </summary>
+		/// <param name="input">Anime to check</param>
+		private bool CheckIfExists(Anime input)  => EncodeQueue.Where(q => { return q.Anime.FileName == input.FileName;}).Any(); //GOD LINE
+
 
 		public void EncodeLoop()
 		{

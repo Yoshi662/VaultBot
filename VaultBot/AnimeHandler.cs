@@ -92,7 +92,6 @@ namespace VaultBot
 				{
 					Anime a = new Anime(NewPath + NewName); //a
 					if (ShowUpdates) await Channel.SendMessageAsync( HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
-					Encoder.Instance.AddAnimeToQueue(new Encode(a, startEncodeDate));
 				}
 			}
 		}
