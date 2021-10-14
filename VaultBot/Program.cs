@@ -22,8 +22,8 @@ namespace VaultBot
 
 	public class Program
 	{
-		internal static readonly string version = "2.5.2";
-		internal static readonly string internalname = "Monke brain";
+		internal static readonly string version = "2.5.3";
+		internal static readonly string internalname = "We know our sources now";
 
 		public static AnimeHandler AnimeUpdater { get; set; }
 		public static DiscordClient Client { get; set; }
@@ -82,7 +82,7 @@ namespace VaultBot
 
 			await Client.ConnectAsync();
 
-			HelperMethods.delay(5000);
+			Utilities.delay(5000);
 
 			AnimeUpdater = new AnimeHandler(cfgjson.AnimePath);
 			senderChannel = await Client.GetChannelAsync(ulong.Parse(cfgjson.SenderChannel));

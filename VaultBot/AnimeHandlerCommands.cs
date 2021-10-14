@@ -116,7 +116,7 @@ namespace VaultBot
 					cont++;
 				}
 			}
-			await ctx.RespondAsync(HelperMethods.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
+			await ctx.RespondAsync(Utilities.QuickEmbed($"{cont} Videos Añadidos a la cola", "", false, false));
 			Encoder.Instance.SendUpdateToChannel();
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
@@ -129,7 +129,7 @@ namespace VaultBot
 			foreach (string f in files)
 			{
 				ER_Anime e = new ER_Anime(f);
-				HelperMethods.RemoveDuplicates(e);
+				Utilities.RemoveDuplicates(e);
 			}
 			ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
 		}
@@ -217,10 +217,10 @@ namespace VaultBot
 				{
 					Encoder.Instance.AddAnimeToQueue(new Encode(f, DateTime.Now), true, false);
 				}
-				await ctx.RespondAsync(HelperMethods.QuickEmbed($"{files.Length} Videos Añadidos a la cola", "", false, false));
+				await ctx.RespondAsync(Utilities.QuickEmbed($"{files.Length} Videos Añadidos a la cola", "", false, false));
 			} else
 			{
-				await ctx.RespondAsync(HelperMethods.QuickEmbed("No se ha podido encontrar el Archivo/Carpeta", "", false, false, DiscordColor.Red.ToString()));
+				await ctx.RespondAsync(Utilities.QuickEmbed("No se ha podido encontrar el Archivo/Carpeta", "", false, false, DiscordColor.Red.ToString()));
 			}
 			Encoder.Instance.SendUpdateToChannel();
 		}
@@ -233,11 +233,11 @@ namespace VaultBot
 				DiscordAttachment file = ctx.Message.Attachments.First();
 				WebClient client = new WebClient();
 				client.DownloadFile(file.Url, Properties.Settings.Default.TorrentFolder + file.FileName);
-				ctx.RespondAsync(HelperMethods.QuickEmbed("Se ha descargado el torrent"));
+				ctx.RespondAsync(Utilities.QuickEmbed("Se ha descargado el torrent"));
 			}
 			catch (Exception e)
 			{
-				ctx.RespondAsync(HelperMethods.QuickEmbed("No se ha podido descargar el torrent", "Error: " + e.Message, false, false, DiscordColor.Red.ToString()));
+				ctx.RespondAsync(Utilities.QuickEmbed("No se ha podido descargar el torrent", "Error: " + e.Message, false, false, DiscordColor.Red.ToString()));
 			}
 		}
 

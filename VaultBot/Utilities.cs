@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VaultBot
 {
-	public static class HelperMethods
+	public static class Utilities
 	{
 		/// <summary>
 		/// Genera un DiscordEmbed basico

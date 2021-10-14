@@ -46,7 +46,7 @@ namespace VaultBot.Tests
 				stream.Close();
 			}
 
-			anime = HelperMethods.RemoveDuplicates(anime);
+			anime = Utilities.RemoveDuplicates(anime);
 
 			int filesthatexist = 0;
 

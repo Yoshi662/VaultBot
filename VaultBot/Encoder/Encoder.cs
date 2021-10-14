@@ -96,7 +96,7 @@ namespace VaultBot
 					try
 					{
 						//We remove the duplicates
-						e.Anime = HelperMethods.RemoveDuplicates((ER_Anime)e.Anime);
+						e.Anime = Utilities.RemoveDuplicates((ER_Anime)e.Anime);
 					}
 					catch (IOException ex)
 					{
@@ -262,7 +262,7 @@ namespace VaultBot
 				{
 					FullPath = item.Anime.FullPath,
 					EncodeDate = item.EncodeDate,
-					AnimeType = (int)HelperMethods.GetAnimeType(item.Anime)
+					AnimeType = (int)Utilities.GetAnimeType(item.Anime)
 				});
 			}
 			File.WriteAllText(QueuePath, JsonConvert.SerializeObject(Queue, Formatting.Indented));
@@ -290,7 +290,7 @@ namespace VaultBot
 		{
 			DiscordEmbedBuilder builder = new DiscordEmbedBuilder(
 			//We create the title and desc referencing a base
-			HelperMethods.QuickEmbed(
+			Utilities.QuickEmbed(
 				@"Recodificado de animes",
 				EncodeQueue.Count > 0 ? @"*" + EncodeQueue.Count + " Elementos en la cola*" : @"*No hay items en la cola ahora mismo*"
 			));

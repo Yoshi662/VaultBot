@@ -58,7 +58,7 @@ namespace VaultBot
 			if (Path.GetExtension(OldName) == ".!qB" && Path.GetExtension(NewName) != ".!qB")
 			{
 				//We get the type of anime
-				AnimeType animeType = HelperMethods.GetAnimeType(NewName);
+				AnimeType animeType = Utilities.GetAnimeType(NewName);
 
 				if (animeType == AnimeType.ER_Anime)
 				{
@@ -88,10 +88,6 @@ namespace VaultBot
 						if (ShowUpdates) await Channel.SendMessageAsync( GetJD_UpdateEmbed(JD_Anime));
 					}
 
-				} else
-				{
-					Anime a = new Anime(NewPath + NewName); //a
-					if (ShowUpdates) await Channel.SendMessageAsync( HelperMethods.QuickEmbed(a.GetInfo(), "Ahora disponible en el servidor"));
 				}
 			}
 		}
@@ -113,7 +109,7 @@ namespace VaultBot
 			if (e.IsV0) descOutput += "Version Preliminar\n";
 			if (e.IsV2) descOutput += "Version Verificada\n";
 			descOutput += "Ahora disponible en el servidor";
-			return HelperMethods.QuickEmbed(titleOutput, descOutput);
+			return Utilities.QuickEmbed(titleOutput, descOutput);
 		}
 
 		private DiscordEmbed GetSP_UpdateEmbed(SP_Anime e)
@@ -123,12 +119,12 @@ namespace VaultBot
 			string descOutput = "";
 			if (!String.IsNullOrWhiteSpace(e.ImprovedVersion)) descOutput += $"Version Mejorada *{e.ImprovedVersion}*\n";
 			descOutput += "Ahora disponible en el servidor";
-			return HelperMethods.QuickEmbed(titleOutput, descOutput);
+			return Utilities.QuickEmbed(titleOutput, descOutput);
 		}
 
 		private DiscordEmbed GetJD_UpdateEmbed(JD_Anime e)
 		{
-			return HelperMethods.QuickEmbed(
+			return Utilities.QuickEmbed(
 				e.GetInfo(),
 				"Ahora disponible en el servidor"
 			);
