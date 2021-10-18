@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,19 @@ namespace VaultBot
 		public string ImprovedVersion { get; set; }
 		public string Hash { get; set; }
 
+		public override DiscordEmbed UpdateEmbed
+		{
+			get
+			{
+				string titleOutput = GetInfo();
+
+				string descOutput = "";
+				if (!String.IsNullOrWhiteSpace(ImprovedVersion)) descOutput += $"Version Mejorada *{ImprovedVersion}*\n";
+				descOutput += "Ahora disponible en el servidor";
+				return Utilities.QuickEmbed(titleOutput, descOutput);
+			}
+		}
+
 		public SP_Anime(string fullpath) : base(fullpath)
 		{
 			if (!TitleRegex.IsMatch(FileName))
@@ -50,6 +64,8 @@ namespace VaultBot
 			this.PreEncode = !string.IsNullOrWhiteSpace(matches[8].Value);
 			this.Extension = matches[9].Value.Trim();
 			this.IsDownloading = !string.IsNullOrWhiteSpace(matches[10].Value);
+			ShowUpdates = true;
+			IsEncoded = false;
 		}
 
 		public override string ToString()

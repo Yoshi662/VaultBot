@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Entities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,6 +39,29 @@ namespace VaultBot
 
 		public override bool IsDownloading { get; set; }
 
+		public override DiscordEmbed UpdateEmbed
+		{
+			get
+			{
+				string titleOutput = GetInfo();
+				if (HasMulti && IsFinale)
+				{
+					titleOutput += "\n**FINALE** - *Multi Subs*";
+				} else
+				{
+					titleOutput += "\n";
+					titleOutput += IsFinale ? "**FINALE**" : "";
+					titleOutput += HasMulti ? "*Multi Subs*" : "";
+				}
+
+				string descOutput = "";
+				if (IsV0) descOutput += "Version Preliminar\n";
+				if (IsV2) descOutput += "Version Verificada\n";
+				descOutput += "Ahora disponible en el servidor";
+
+				return Utilities.QuickEmbed(titleOutput, descOutput);
+			}
+		}
 
 		public ER_Anime(string FullPath) : base(FullPath)
 		{
@@ -57,6 +81,9 @@ namespace VaultBot
 			HasMulti = !string.IsNullOrWhiteSpace(matches[9].Value);
 			Extension = matches[10].Value.Trim();
 			IsDownloading = !string.IsNullOrWhiteSpace(matches[11].Value);
+
+			ShowUpdates = true;
+			IsEncoded = false;
 		}
 		public override string ToString()
 		{
@@ -88,5 +115,6 @@ namespace VaultBot
 		/// Gets the title and number of episode in a formatted way
 		/// </summary>
 		public override string GetInfo() => Title + " - " + N_Ep;
+
 	}
 }

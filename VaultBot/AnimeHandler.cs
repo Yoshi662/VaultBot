@@ -38,13 +38,9 @@ namespace VaultBot
 
 			this.MasterWatcher.EnableRaisingEvents = true;
 
-
-
 			Task.Delay(-1);
 		}
 
-		//HACK Improve the logic on this command
-		//We could implement GetXX_UpdateEmbed as one complexy method
 		private async void OnRenamedAsync(object sender, RenamedEventArgs e)
 		{
 			string NewName = e.Name.Split('\\').Last();
@@ -59,75 +55,20 @@ namespace VaultBot
 			{
 				//We get the type of anime
 				AnimeType animeType = Utilities.GetAnimeType(NewName);
-
-				if (animeType == AnimeType.ER_Anime)
+				Anime a = animeType switch
 				{
-					ER_Anime ER_Anime = new ER_Anime(NewPath + NewName);
-
-					if (ER_Anime.Exists())
-					{
-						Encoder.Instance.AddAnimeToQueue(new Encode(ER_Anime, startEncodeDate));
-						if(ShowUpdates) await Channel.SendMessageAsync( GetER_UpdateEmbed(ER_Anime));
-					}
-
-				} else if (animeType == AnimeType.SP_Anime)
+					AnimeType.ER_Anime => new ER_Anime(NewPath + NewName),
+					AnimeType.SP_Anime => new SP_Anime(NewPath + NewName),
+					AnimeType.JD_Anime => new JD_Anime(NewPath + NewName),
+					AnimeType.EM_Anime => new EM_Anime(NewPath + NewName),
+					_ => new Anime(NewPath + NewName),
+				};
+				if (a.Exists())
 				{
-					SP_Anime SP_Anime = new SP_Anime(NewPath + NewName);
-					if (SP_Anime.Exists())
-					{
-						Encoder.Instance.AddAnimeToQueue(new Encode(SP_Anime, startEncodeDate));
-						if (ShowUpdates) await Channel.SendMessageAsync( GetSP_UpdateEmbed(SP_Anime));
-					}
-
-				} else if (animeType == AnimeType.JD_Anime)
-				{
-					JD_Anime JD_Anime = new JD_Anime(NewPath + NewName);
-					if (JD_Anime.Exists())
-					{
-						//Since judas torrents are already encoded we don't need to reencode them
-						if (ShowUpdates) await Channel.SendMessageAsync( GetJD_UpdateEmbed(JD_Anime));
-					}
-
+					if (a.ShowUpdates) await Channel.SendMessageAsync(a.UpdateEmbed);
+					if (!a.IsEncoded) Encoder.Instance.AddAnimeToQueue(new Encode(a, startEncodeDate));
 				}
 			}
-		}
-
-		private DiscordEmbed GetER_UpdateEmbed(ER_Anime e)
-		{
-			string titleOutput = e.GetInfo();
-			if (e.HasMulti && e.IsFinale)
-			{
-				titleOutput += "\n**FINALE** - *Multi Subs*";
-			} else
-			{
-				titleOutput += "\n";
-				titleOutput += e.IsFinale ? "**FINALE**" : "";
-				titleOutput += e.HasMulti ? "*Multi Subs*" : "";
-			}
-
-			string descOutput = "";
-			if (e.IsV0) descOutput += "Version Preliminar\n";
-			if (e.IsV2) descOutput += "Version Verificada\n";
-			descOutput += "Ahora disponible en el servidor";
-			return Utilities.QuickEmbed(titleOutput, descOutput);
-		}
-
-		private DiscordEmbed GetSP_UpdateEmbed(SP_Anime e)
-		{
-			string titleOutput = e.GetInfo();
-
-			string descOutput = "";
-			if (!String.IsNullOrWhiteSpace(e.ImprovedVersion)) descOutput += $"Version Mejorada *{e.ImprovedVersion}*\n";
-			descOutput += "Ahora disponible en el servidor";
-			return Utilities.QuickEmbed(titleOutput, descOutput);
-		}
-
-		private DiscordEmbed GetJD_UpdateEmbed(JD_Anime e)
-		{
-			return Utilities.QuickEmbed(
-				e.GetInfo(),
-				"Ahora disponible en el servidor"
-			);
 		}
 	}
 }

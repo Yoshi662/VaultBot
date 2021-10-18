@@ -154,7 +154,7 @@ else
 				if (e.Exception.Message != null) builder.AddField("Mensaje", e.Exception.Message);
 				if (e.Command?.QualifiedName != null) builder.AddField("Commando", e.Command?.QualifiedName);
 				if (e.Exception.GetType().Name != null) builder.AddField("Type", e.Exception.GetType().Name);
-				if (e.Exception.StackTrace != null) builder.AddField("StackTrace", (e.Exception.StackTrace.Length > 1000 ? e.Exception.StackTrace.Substring(0,1000) : e.Exception.StackTrace));
+				if (e.Exception.StackTrace != null) builder.AddField("StackTrace", (e.Exception.StackTrace.Length > 1000 ? e.Exception.StackTrace.Substring(0, 1000) : e.Exception.StackTrace));
 				builder.WithFooter("For Debug purposes only");
 				builder.WithTimestamp(DateTime.Now);
 

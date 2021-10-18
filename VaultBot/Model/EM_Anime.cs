@@ -8,16 +8,9 @@ using System.Threading.Tasks;
 
 namespace VaultBot
 {
-	public class JD_Anime : Anime
+	public class EM_Anime : Anime
 	{
-
-		/// <summary>
-		/// This is the Regex used in file validation
-		/// <para>Groups: Spam, Title, Season, Ep, Resolution, Encoding, SubsLanguage, ReleaseType</para>
-		/// </summary>
-		//public static Regex TitleRegex { get; } = new Regex(@"(?<Spam>\[Judas\]) (?<Title>.*) ((?<Season>\(.*\))|(?<Ep>(- S\d\dE\d\d)|(- \d+))) (?<Resolution>\[.*\])(?<Encoding>\[.*\])(?<SubsLanguage>(\[.*\])) (?<ReleaseType>\(.*\))(?<VideoExtension>\.mkv)?(?<IsDownloading>\.!qB)?");
-		public static Regex TitleRegex { get; } = new Regex(@"(?<Spam>\[Judas\]) (?<Title>.*) - S(?<Season>\d+)E(?<Ep>\d+)(?<VideoExtension>\.\w{3,4})?(?<IsDownloading>\.!qB)?");
-
+		public static Regex TitleRegex { get; } = new Regex(@"(?<Spam>\[EMBER\]) (?<Title>.*) S(?<Season>\d+)E(?<Ep>\d+) (?<Resolution>\[\d{3,4}p\]) (?<VideoType>\[.*\]) ?(?<Alternative_Title>\(.*\))?.*(?<VideoExtension>\.\w{3,4})?(?<IsDownloading>\.!qB)?");
 		public override string FullPath { get => base.FullPath; set => base.FullPath = value; }
 		public override string FileName { get => base.FileName; set => base.FileName = value; }
 		public override string FolderPath { get => base.FolderPath; set => base.FolderPath = value; }
@@ -28,6 +21,7 @@ namespace VaultBot
 		public string Title { get; set; }
 		public string N_Ep { get; set; }
 		public string N_Season { get; set; }
+		public string? Alternative_Title { get; set; }
 
 		public override DiscordEmbed UpdateEmbed
 		{
@@ -35,13 +29,12 @@ namespace VaultBot
 			{
 				return Utilities.QuickEmbed(
 				  GetInfo(),
-				  "Ahora disponible en el servidor"
+				  $"{Alternative_Title}\nAhora disponible en el servidor"
 			  );
 			}
 		}
 
-
-		public JD_Anime(string FullPath) : base(FullPath)
+		public EM_Anime(string FullPath) : base(FullPath)
 		{
 			if (!TitleRegex.IsMatch(FileName))
 			{
@@ -52,24 +45,16 @@ namespace VaultBot
 			N_Ep = matches["Ep"].Value.Trim();
 			N_Season = matches["Season"].Value.Trim();
 			Extension = matches["VideoExtension"].Value.Trim();
+			Alternative_Title = matches["Alternative_Title"].Value.Trim();
+
 			ShowUpdates = true;
 			IsEncoded = true;
 		}
+
 		public override string GetInfo()
 		{
 			if (Title is null && N_Ep is null) return FileName;
 			else return Title + (int.Parse(N_Season) > 1 ? $" {N_Season}" : "") + " - " + N_Ep;
-		}
-
-		public override string ToString()
-		{
-			if (Title is null && N_Ep is null) return base.FileName;
-
-			string output = $"[Judas] {Title} - S{N_Season}E{N_Ep}{Extension}{IsDownloading}";
-			output += Extension;
-			if (IsDownloading) output += dw_ext;
-
-			return output;
 		}
 
 		/// <summary>

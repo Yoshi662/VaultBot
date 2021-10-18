@@ -76,12 +76,12 @@ namespace VaultBot
 			if (updateMsgQueue) SendUpdateToChannel();
 		}
 
-		
+
 		/// <summary>
 		/// Checks if the anime sent is on the queue
 		/// </summary>
 		/// <param name="input">Anime to check</param>
-		private bool CheckIfExists(Anime input)  => EncodeQueue.Where(q => { return q.Anime.FileName == input.FileName;}).Any(); //GOD LINE
+		private bool CheckIfExists(Anime input) => EncodeQueue.Where(q => { return q.Anime.FileName == input.FileName; }).Any(); //GOD LINE
 
 
 		public void EncodeLoop()
@@ -105,20 +105,18 @@ namespace VaultBot
 
 				}
 
-				if (!(e.Anime is JD_Anime))
+				//And we encode the anime
+				try
 				{
-					//And we encode the anime
-					try
-					{
-						Encode(e.Anime);
-					}
-					catch (FileNotFoundException ex)
-					{
-						Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Tried to Encode \"{e.Anime.GetInfo()}\" but it was not found");
-					}
-					//Since the starting of some tasks depends on the size of the Queue.
-					//We don't remove the element until the very end of this loop
+					Encode(e.Anime);
 				}
+				catch (FileNotFoundException ex)
+				{
+					Program.Client.Logger.Log(LogLevel.Error, Events.EncodeError, ex, $"Tried to Encode \"{e.Anime.GetInfo()}\" but it was not found");
+				}
+				//Since the starting of some tasks depends on the size of the Queue.
+				//We don't remove the element until the very end of this loop
+
 
 
 				EncodeQueue.Remove(e);
@@ -169,7 +167,7 @@ namespace VaultBot
 				//This should take care of all possible scenarios (Either Handbrake is still running or not)
 				catch (IOException e)
 				{
-					
+
 					HandBrakeCLI = Process.GetProcessesByName("HandbrakeCLI").FirstOrDefault();
 
 					if (HandBrakeCLI is null)
@@ -243,7 +241,7 @@ namespace VaultBot
 						if (OldPID == HandBrakeCLI.Id)
 						{
 							HandBrakeCLI.Close();
-						}			
+						}
 					})).Start();
 				}
 
@@ -329,7 +327,7 @@ namespace VaultBot
 			}
 			catch (InvalidOperationException)
 			{
-				DiscordMessage msg = await UpdatesChannel.SendMessageAsync( builder.Build());
+				DiscordMessage msg = await UpdatesChannel.SendMessageAsync(builder.Build());
 				await msg.PinAsync();
 			}
 		}

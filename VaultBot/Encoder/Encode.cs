@@ -51,6 +51,7 @@ namespace VaultBot
 		Anime,
 		ER_Anime,
 		SP_Anime,
-		JD_Anime
+		JD_Anime,
+		EM_Anime
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Entities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace VaultBot
 			get { return _fullPath; }
 			set { _fullPath = value; }
 		}
-		
+
 
 		/// <summary>
 		/// It gets the File Name
@@ -47,6 +48,18 @@ namespace VaultBot
 			get { return Path.GetDirectoryName(_fullPath); }
 			set { _fullPath = value.TrimEnd(new[] { '/', '\\' }) + "\\" + FileName; }
 		}
+
+
+		/// <summary>
+		/// Boolean used to know if an anime is encoded
+		/// </summary>
+		public bool IsEncoded { get; set; }
+
+
+		/// <summary>
+		/// Boolean used to know if we need to show the update on release
+		/// </summary>
+		public bool ShowUpdates { get; set; }
 
 
 		public virtual string Extension
@@ -77,10 +90,10 @@ namespace VaultBot
 
 		public virtual bool PreEncode
 		{
-			get { return FileName.StartsWith(preEncodePrefix);  }
+			get { return FileName.StartsWith(preEncodePrefix); }
 			set
 			{
-			bool IsAlreadyaPreEncode = FileName.StartsWith(preEncodePrefix);
+				bool IsAlreadyaPreEncode = FileName.StartsWith(preEncodePrefix);
 				if (value && !IsAlreadyaPreEncode)
 				{
 					FileName = preEncodePrefix + FileName;
@@ -92,6 +105,7 @@ namespace VaultBot
 			}
 		}
 
+		public virtual DiscordEmbed UpdateEmbed { get; private set; }
 
 		public Anime(string FullPath)
 		{
@@ -100,6 +114,14 @@ namespace VaultBot
 				throw new ArgumentException("You have not provided a full (Rooted) path");
 			}
 			this.FullPath = FullPath;
+
+			this.IsEncoded = true; //We assume all unknown anime is already encoded
+			this.ShowUpdates = false; //Since we download in batches, updating by episode is spammy
+
+			this.UpdateEmbed = Utilities.QuickEmbed(
+				this.GetInfo(),
+				"Ahora disponible en el servidor"
+			);
 		}
 
 		public object Clone()
