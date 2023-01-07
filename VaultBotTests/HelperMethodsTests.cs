@@ -16,24 +16,25 @@ namespace VaultBot.Tests
 		public void RemoveDuplicatesTest()
 		{
 			String testingMainPath = @"D:\Temp\VaultBotUnitTesting\";
-			//[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][1080p][Multiple Subtitle].mkv
+			//[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][1080p][Multiple Subtitle][1234ABCD].mkv
 			string[] files = {
-				/*@"[Erai-raws] The Legend of Unit Testing - 14 [1080p].mkv",												//Standard
-				@"[Erai-raws] The Legend of Unit Testing - 14 [v0][1080p].mkv",											//V0
-				@"[Erai-raws] The Legend of Unit Testing - 14 [v2][1080p].mkv",											//V2
-				@"[Erai-raws] The Legend of Unit Testing - 14 [1080p][Multiple Subtitle].mkv",	*/						//Multi	
+				/*@"[Erai-raws] The Legend of Unit Testing - 14 [1080p][1234ABCD].mkv",												//Standard
+				@"[Erai-raws] The Legend of Unit Testing - 14 [v0][1080p][1234ABCD].mkv",											//V0
+				@"[Erai-raws] The Legend of Unit Testing - 14 [v2][1080p][1234ABCD].mkv",											//V2
+				@"[Erai-raws] The Legend of Unit Testing - 14 [1080p][Multiple Subtitle][1234ABCD].mkv",	*/						//Multi	
 				//FINALES
-				@"[Erai-raws] The Legend of Unit Testing - 14 END [1080p].mkv",												//Standard
-				@"[Erai-raws] The Legend of Unit Testing - 14 END [v0][1080p].mkv",											//V0
-				@"[Erai-raws] The Legend of Unit Testing - 14 END [v2][1080p].mkv",											//V2
-				@"[Erai-raws] The Legend of Unit Testing - 14 END [1080p][Multiple Subtitle].mkv"							//Multi	
+				@"[Erai-raws] The Legend of Unit Testing - 14 END [1080p][1234ABCD].mkv",												//Standard
+				@"[Erai-raws] The Legend of Unit Testing - 14 END [v0][1080p][1234ABCD].mkv",											//V0
+				@"[Erai-raws] The Legend of Unit Testing - 14 END [v2][1080p][1234ABCD].mkv",											//V2
+				@"[Erai-raws] The Legend of Unit Testing - 14 END [1080p][Multiple Subtitle][1234ABCD].mkv",							//Multi	
+				@"[Erai-raws] Trigun Stampede - 01 [1080p][Multiple Subtitle][1234ABCD][1234ABCD].mkv"
 				
-				/*@"[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][1080p][Multiple Subtitle].mkv"					//Multiple
-				@"[Erai-raws] The Legend of Unit Testing - 14 [pre-enc][1080p].mkv",												//Standard
-				@"[Erai-raws] The Legend of Unit Testing - 14 [v0][pre-enc][1080p].mkv",											//V0
-				@"[Erai-raws] The Legend of Unit Testing - 14 [v2][pre-enc][1080p].mkv",											//V2
-				@"[Erai-raws] The Legend of Unit Testing - 14 [pre-enc][1080p].mkv",												//Multi
-				@"[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][pre-enc][1080p][Multiple Subtitle].mkv"	*/				//Finale
+			  /*@"[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][1080p][Multiple Subtitle][1234ABCD].mkv"					//Multiple
+				@"[Erai-raws] The Legend of Unit Testing - 14 [pre-enc][1080p][1234ABCD].mkv",												//Standard
+				@"[Erai-raws] The Legend of Unit Testing - 14 [v0][pre-enc][1080p][1234ABCD].mkv",											//V0
+				@"[Erai-raws] The Legend of Unit Testing - 14 [v2][pre-enc][1080p][1234ABCD].mkv",											//V2
+				@"[Erai-raws] The Legend of Unit Testing - 14 [pre-enc][1080p][1234ABCD].mkv",												//Multi
+				@"[Erai-raws] The Legend of Unit Testing - 14 [v0][v2][pre-enc][1080p][Multiple Subtitle][1234ABCD].mkv"	*/				//Finale
 			 };
 
 			ER_Anime anime = new ER_Anime(testingMainPath + files[0]);

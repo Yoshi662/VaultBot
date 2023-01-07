@@ -225,22 +225,6 @@ namespace VaultBot
 			Encoder.Instance.SendUpdateToChannel();
 		}
 
-		[Command("addtorrent"), Description("Descarga un archivo en el servidor\nRuta de descarga:`\\\\Vault_662\\Torrents\\TorrentsDescargados`"), Aliases(new[] { "torrent", "add" })]
-		public async Task AddTorrent(CommandContext ctx)
-		{
-			try
-			{
-				DiscordAttachment file = ctx.Message.Attachments.First();
-				WebClient client = new WebClient();
-				client.DownloadFile(file.Url, Properties.Settings.Default.TorrentFolder + file.FileName);
-				ctx.RespondAsync(Utilities.QuickEmbed("Se ha descargado el torrent"));
-			}
-			catch (Exception e)
-			{
-				ctx.RespondAsync(Utilities.QuickEmbed("No se ha podido descargar el torrent", "Error: " + e.Message, false, false, DiscordColor.Red.ToString()));
-			}
-		}
-
 		[Command("respuestaingeniosa"), Description("Tu madre"), RequirePermissions(Permissions.Administrator), Aliases(new[] { "ri" })]
 		public async Task RI(CommandContext ctx)
 		{

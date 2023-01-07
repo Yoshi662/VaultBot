@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>V:\Personal\Yoshi\Yoshis Projects\VaultBot\</PublishUrl>
@@ -32,21 +32,18 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+    <NoWin32Manifest>true</NoWin32Manifest>
+    <StartupObject>VaultBot.Program</StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>VaultBot_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
+    <None Update="Config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="CurrentQueue.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -114,22 +111,21 @@
     </PublishFile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ConcurrentHashSet" Version="1.3.0" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01030" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01030" />
-    <PackageReference Include="Emzi0767.Microsoft.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01171" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0-nightly-01171" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01171" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rc.2.21480.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0-rc.2.21480.5" />
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0-rc.2.21480.5" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="6.0.0-rc.2.21480.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="7.0.0-rc.1.22426.10" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview5.19224.8" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
-    <PackageReference Include="System.Threading.Channels" Version="6.0.0-rc.2.21480.5" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.246501">
+    <PackageReference Include="System.Threading.Channels" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346201">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>

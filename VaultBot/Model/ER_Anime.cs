@@ -18,7 +18,7 @@ namespace VaultBot
 		/// <summary>
 		/// This is the Regex used in file validation
 		/// </summary>
-		public static Regex TitleRegex { get; } = new Regex(@"(\[Erai\-raws\] )(.*)( - \d{1,3})( END)?( \[v0\])?( \[v2\])?( *\[1080p\])(\[pre-enc\])?(\[Multiple Subtitle\])?(\.mkv)?(\.!qB)?");
+		public static Regex TitleRegex { get; } = new Regex(@"(\[Erai\-raws\] )(.*)( - \d{1,3})( END)?( \[v0\])?( \[v2\])?( *\[1080p\])(\[pre-enc\])?(\[Multiple Subtitle\])?(\[\w{8}\])?(\.mkv)?(\.!qB)?");
 		/// <summary>
 		/// It gets the full Absolute path to the EP
 		/// <para>Ex: "C:\Users\Yoshi\Homework\Itadaki!_Seieki_01_HMV.MKV"</para>
@@ -35,6 +35,7 @@ namespace VaultBot
 		public bool IsFinale { get; set; }
 		public bool IsV0 { get; set; }
 		public bool IsV2 { get; set; }
+		public string Hash { get; set; }
 		public override bool PreEncode { get; set; }
 
 		public override bool IsDownloading { get; set; }
@@ -79,11 +80,12 @@ namespace VaultBot
 			//7 resolution *1080p in this case*
 			PreEncode = !string.IsNullOrWhiteSpace(matches[8].Value);
 			HasMulti = !string.IsNullOrWhiteSpace(matches[9].Value);
-			Extension = matches[10].Value.Trim();
-			IsDownloading = !string.IsNullOrWhiteSpace(matches[11].Value);
+			Hash = matches[10].Value;
+			Extension = matches[11].Value.Trim();
+			IsDownloading = !string.IsNullOrWhiteSpace(matches[12].Value);
 
 			ShowUpdates = true;
-			IsEncoded = false;
+			IsEncoded = true; //Not really but we don't want to encode it.
 		}
 		public override string ToString()
 		{
@@ -98,6 +100,7 @@ namespace VaultBot
 			output += @"[1080p]";
 			if (PreEncode) output += @"[pre-enc]";
 			if (HasMulti) output += @"[Multiple Subtitle]";
+			output += Hash;
 			output += Extension;
 			if (IsDownloading) output += dw_ext;
 			return output;

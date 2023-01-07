@@ -55,11 +55,13 @@ namespace VaultBot
 				TokenType = TokenType.Bot,
 
 				AutoReconnect = true,
-				MinimumLogLevel = cfgjson.LogLevel
+				MinimumLogLevel = cfgjson.LogLevel,
+
+				Intents = DiscordIntents.All
 			};
 
 			Client = new DiscordClient(cfg);
-
+			
 			Client.Ready += this.Client_Ready;
 			Client.GuildAvailable += this.Client_GuildAvailable;
 			Client.ClientErrored += this.Client_ClientError;
